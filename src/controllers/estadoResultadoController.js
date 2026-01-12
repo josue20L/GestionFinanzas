@@ -37,7 +37,7 @@ const saveForPeriodo = async (req, res) => {
         );
 
         if (existeRows[0]) {
-            // Actualizar
+            // Actualizar - Solo guardar campos de input, los calculados son automáticos
             await db.query(
                 `UPDATE ESTADORESULTADO
                  SET VENTAS_NETAS = ?, COSTO_VENTAS = ?, GASTO_ADMINISTRATIVO = ?, GASTO_COMERCIALIZACION = ?, GASTO_SIG = ?,
@@ -57,7 +57,7 @@ const saveForPeriodo = async (req, res) => {
                 ]
             );
         } else {
-            // Insertar
+            // Insertar - Solo guardar campos de input, los calculados son automáticos
             await db.query(
                 `INSERT INTO ESTADORESULTADO
                  (ID_PERIODO, VENTAS_NETAS, COSTO_VENTAS, GASTO_ADMINISTRATIVO, GASTO_COMERCIALIZACION, GASTO_SIG,

@@ -1,0 +1,20 @@
+<div class="col-md-4 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title"><%= empresa.NOMBRE_EMPRESA || 'Sin nombre' %></h5>
+            <p class="card-text">
+                <small class="text-muted">NIT/RUC: <%= empresa.NIT_RUC || 'N/A' %></small><br>
+                <small class="text-muted">Ciudad: <%= empresa.PAIS || 'N/A' %></small><br>
+                <small class="text-muted">Moneda: <%= empresa.NOMBRE_MONEDA || 'N/A' %></small>
+            </p>
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-sm btn-outline-primary" onclick="editarEmpresa('<%= empresa.ID_EMPRESA %>')">
+                    <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="eliminarEmpresa('<%= empresa.ID_EMPRESA %>')">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

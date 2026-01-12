@@ -74,7 +74,7 @@ class FlujoCorporativo {
                      PRESTAMOS_BANCARIOS, INVERSIONES, RPR_CONSULTORES, BONOS_PLRS,
                      DIVIDENDOS_PAGAR, CUENTAS_PAGAR, AGUINALDOS, FINIQUITOS,
                      PRIMAS, RETROACTIVOS, IUE, OTROS_GASTOS, SALDO_ANTERIOR)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `, [
                     idPeriodo,
                     datos.transferencia_fondos || 0,
@@ -107,7 +107,8 @@ class FlujoCorporativo {
             const [result] = await db.query('DELETE FROM FLUJOCORPORATIVO WHERE ID_PERIODO = ?', [idPeriodo]);
             return result.affectedRows > 0;
         } catch (error) {
-            throw new Error(`Error al eliminar flujo corporativo: ${error.message}`);
+            console.error(error);
+            return false;
         }
     }
 

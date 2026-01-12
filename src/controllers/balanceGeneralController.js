@@ -44,6 +44,7 @@ const saveForPeriodo = async (req, res) => {
             return res.status(400).json({ message: 'id_periodo es requerido' });
         }
 
+        // Verificar si ya existe un registro para ese período
         const [existeRows] = await db.query(
             'SELECT ID_BG FROM BALANCEGENERAL WHERE ID_PERIODO = ?',
             [id_periodo]
@@ -65,7 +66,7 @@ const saveForPeriodo = async (req, res) => {
         ];
 
         if (existeRows[0]) {
-            // UPDATE
+            // UPDATE - Solo guardar campos de input, los calculados son automáticos
             await db.query(
                 `UPDATE BALANCEGENERAL
                  SET DISPONIBLE = ?, EXIGIBLE = ?, REALIZABLE = ?,
@@ -76,7 +77,7 @@ const saveForPeriodo = async (req, res) => {
                 [...values, id_periodo]
             );
         } else {
-            // INSERT
+            // INSERT - Solo guardar campos de input, los calculados son automáticos
             await db.query(
                 `INSERT INTO BALANCEGENERAL
                  (ID_PERIODO, DISPONIBLE, EXIGIBLE, REALIZABLE,

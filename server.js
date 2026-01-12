@@ -98,16 +98,21 @@ const empresasRoutes = require('./src/routes/empresas');
 const periodosRoutes = require('./src/routes/periodos');
 const estadoResultadosRoutes = require('./src/routes/estadoResultados');
 const balanceGeneralRoutes = require('./src/routes/balanceGeneral');
-
+const flujoOperativoRoutes = require('./src/routes/flujoOperativo');
+const flujoCorporativoRoutes = require('./src/routes/flujoCorporativo');
+const empresasViewsRoutes = require('./src/routes/empresasViews');
 
 app.use('/api', empresasRoutes);
 app.use('/api', periodosRoutes);
 app.use('/api', estadoResultadosRoutes);
 app.use('/api', balanceGeneralRoutes);
+app.use('/api', flujoOperativoRoutes);
+app.use('/api', flujoCorporativoRoutes);
+app.use('/empresas', empresasViewsRoutes);
 
 // Ruta de Consolidación
 app.get('/consolidacion', (req, res) => {
-  res.render('estados-financieros/consolidacion', { 
+  res.render('consolidacion/consolidacion', { 
     title: 'Consolidación',
     user: req.session.user 
   });
@@ -115,7 +120,7 @@ app.get('/consolidacion', (req, res) => {
 
 // Ruta de Reportes
 app.get('/reportes', (req, res) => {
-  res.render('estados-financieros/reportes', { 
+  res.render('reportes/reportes', { 
     title: 'Reportes',
     user: req.session.user 
   });

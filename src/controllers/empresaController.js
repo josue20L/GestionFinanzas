@@ -91,6 +91,24 @@ const obtenerMonedas = async (req, res) => {
     }
 };
 
+// Obtener empresa para renderizar card
+const obtenerEmpresaParaCard = async (req, res) => {
+    try {
+        const empresa = await Empresa.getById(req.params.id);
+        if (!empresa) {
+            return res.status(404).send('Empresa no encontrada');
+        }
+        res.render('empresas/card-empresas', { 
+            empresa,
+            title: 'Card Empresa',
+            layout: false  // No usar layout para cards
+        });
+    } catch (error) {
+        console.error('Error al obtener empresa para card:', error);
+        res.status(500).send('Error al cargar card');
+    }
+};
+
 module.exports = {
     obtenerEmpresas,
     obtenerEmpresaPorId,
@@ -98,5 +116,6 @@ module.exports = {
     actualizarEmpresa,
     eliminarEmpresa,
     obtenerGruposEmpresariales,
-    obtenerMonedas
+    obtenerMonedas,
+    obtenerEmpresaParaCard
 };
