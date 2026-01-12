@@ -1,0 +1,557 @@
+<h2 class="mb-4">Reportes</h2>
+
+<!-- CSS personalizado para tabs -->
+<link rel="stylesheet" href="/css/carga-mensual.css">
+
+<!-- Selectores de empresa, período y tipo de reporte -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="empresa-select" class="form-label">Empresa</label>
+                <select id="empresa-select" class="form-select">
+                    <option value="1" selected>Empresa Demo S.A.</option>
+                    <option value="2">Otra Empresa Ltda.</option>
+                    <option value="3">Empresa Tercera S.A.</option>
+                    <option value="4">Empresa Cuarta S.A.</option>
+                    <option value="5">Empresa Quinta S.A.</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="periodo-select" class="form-label">Período (YYYY-MM)</label>
+                <input type="month" id="periodo-select" class="form-control" value="2024-01">
+            </div>
+            <div class="col-md-3">
+                <label for="tipo-reporte-select" class="form-label">Tipo de Reporte</label>
+                <select id="tipo-reporte-select" class="form-select">
+                    <option value="completo" selected>Reporte Completo</option>
+                    <option value="estado-resultados">Estado de Resultados</option>
+                    <option value="balance-general">Balance General</option>
+                    <option value="flujo-operativo">Flujo Operativo</option>
+                    <option value="flujo-corporativo">Flujo Corporativo</option>
+                    <option value="comparativo">Reporte Comparativo</option>
+                    <option value="tendencias">Análisis de Tendencias</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="btn-group w-100">
+                    <button type="button" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-text me-2"></i> Generar Reporte
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise me-2"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Opciones adicionales -->
+        <div class="row g-3 mt-3">
+            <div class="col-md-4">
+                <label class="form-label">Formato de Salida</label>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="formato" id="formato-web" checked>
+                    <label class="btn btn-outline-primary" for="formato-web">
+                        <i class="bi bi-display me-2"></i> Web
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="formato" id="formato-pdf">
+                    <label class="btn btn-outline-primary" for="formato-pdf">
+                        <i class="bi bi-file-pdf me-2"></i> PDF
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="formato" id="formato-excel">
+                    <label class="btn btn-outline-primary" for="formato-excel">
+                        <i class="bi bi-file-excel me-2"></i> Excel
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Período Comparativo</label>
+                <select id="periodo-comparativo-select" class="form-select">
+                    <option value="ninguno">Sin comparación</option>
+                    <option value="mes-anterior">Mes anterior</option>
+                    <option value="trimestre-anterior">Trimestre anterior</option>
+                    <option value="anio-anterior">Año anterior</option>
+                    <option value="personalizado">Personalizado</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Opciones</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="incluir-graficos" checked>
+                    <label class="form-check-label" for="incluir-graficos">
+                        Incluir gráficos
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="incluir-analisis" checked>
+                    <label class="form-check-label" for="incluir-analisis">
+                        Incluir análisis
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor para los reportes -->
+<div id="reportes-container">
+    <!-- Tabs para seleccionar vista -->
+    <ul class="nav nav-tabs mb-4" id="reportesTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-reporte-vista" data-bs-toggle="tab" data-bs-target="#reporte-vista" type="button" role="tab">
+                <i class="bi bi-eye me-2"></i> 
+                <span class="fw-bold">VISTA PREVIA</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-reporte-graficos" data-bs-toggle="tab" data-bs-target="#reporte-graficos" type="button" role="tab">
+                <i class="bi bi-bar-chart me-2"></i> 
+                <span class="fw-bold">GRÁFICOS</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-reporte-analisis" data-bs-toggle="tab" data-bs-target="#reporte-analisis" type="button" role="tab">
+                <i class="bi bi-graph-up me-2"></i> 
+                <span class="fw-bold">ANÁLISIS</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-reporte-comparativo" data-bs-toggle="tab" data-bs-target="#reporte-comparativo" type="button" role="tab">
+                <i class="bi bi-columns me-2"></i> 
+                <span class="fw-bold">COMPARATIVO</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenido de los tabs -->
+    <div class="tab-content" id="reportesTabContent">
+        <!-- Vista Previa del Reporte -->
+        <div class="tab-pane fade show active" id="reporte-vista" role="tabpanel">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i> Reporte Completo - Empresa Demo S.A. (Enero 2024)
+                    </h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-printer me-2"></i> Imprimir
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download me-2"></i> Descargar
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Resumen Ejecutivo -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Resumen Ejecutivo</h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Ventas Netas</h6>
+                                            <h4 class="text-success">$150,000</h4>
+                                            <small class="text-success">+5.2% vs mes anterior</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Utilidad Neta</h6>
+                                            <h4 class="text-primary">$28,700</h4>
+                                            <small class="text-success">+3.8% vs mes anterior</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Total Activo</h6>
+                                            <h4 class="text-info">$205,000</h4>
+                                            <small class="text-success">+2.1% vs mes anterior</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Saldo Operativo</h6>
+                                            <h4 class="text-warning">$186,500</h4>
+                                            <small class="text-success">+8.5% vs mes anterior</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado de Resultados Resumido -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Estado de Resultados</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <tbody>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Ventas Netas</td>
+                                            <td class="text-end fw-bold">$150,000.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Costo de Ventas</td>
+                                            <td class="text-end">$90,000.00</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Utilidad en Ventas</td>
+                                            <td class="text-end fw-bold">$60,000.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Gastos Operativos</td>
+                                            <td class="text-end">$25,000.00</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">EBIT</td>
+                                            <td class="text-end fw-bold">$35,000.00</td>
+                                        </tr>
+                                        <tr class="table-success">
+                                            <td class="fw-bold">Utilidad Neta</td>
+                                            <td class="text-end fw-bold">$28,700.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Balance General Resumido -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Balance General</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <tbody>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Total Activo</td>
+                                            <td class="text-end fw-bold">$205,000.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Activo Corriente</td>
+                                            <td class="text-end">$85,000.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Activo No Corriente</td>
+                                            <td class="text-end">$120,000.00</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Total Pasivo y Patrimonio</td>
+                                            <td class="text-end fw-bold">$205,000.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Pasivo</td>
+                                            <td class="text-end">$77,000.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Patrimonio</td>
+                                            <td class="text-end">$128,000.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráficos -->
+        <div class="tab-pane fade" id="reporte-graficos" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i> Gráficos Financieros
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h6 class="fw-bold text-center mb-3">Evolución de Ventas</h6>
+                            <div class="card bg-light p-4 text-center">
+                                <i class="bi bi-graph-up display-1 text-primary"></i>
+                                <p class="mt-3">Gráfico de líneas mostrando tendencia de ventas últimos 6 meses</p>
+                                <small class="text-muted">Gráfico interactivo con Chart.js</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h6 class="fw-bold text-center mb-3">Composición de Ingresos</h6>
+                            <div class="card bg-light p-4 text-center">
+                                <i class="bi bi-pie-chart display-1 text-success"></i>
+                                <p class="mt-3">Gráfico circular con distribución por tipo de ingresos</p>
+                                <small class="text-muted">Ventas: 75%, Exportación: 20%, Otros: 5%</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h6 class="fw-bold text-center mb-3">Análisis de Rentabilidad</h6>
+                            <div class="card bg-light p-4 text-center">
+                                <i class="bi bi-bar-chart-line display-1 text-warning"></i>
+                                <p class="mt-3">Gráfico de barras comparando márgenes</p>
+                                <small class="text-muted">Margen bruto: 40%, Margen neto: 19%</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h6 class="fw-bold text-center mb-3">Flujo de Caja</h6>
+                            <div class="card bg-light p-4 text-center">
+                                <i class="bi bi-water display-1 text-info"></i>
+                                <p class="mt-3">Gráfico de área mostrando flujo operativo</p>
+                                <small class="text-muted">Saldo actual: $186,500</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Análisis -->
+        <div class="tab-pane fade" id="reporte-analisis" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i> Análisis Financiero
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Indicadores Financieros -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Indicadores Clave</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card border-primary">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Margen Bruto</h6>
+                                            <h3 class="text-primary">40.0%</h3>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary" style="width: 40%"></div>
+                                            </div>
+                                            <small class="text-muted">Buen desempeño (meta: 35%)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-success">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Margen Neto</h6>
+                                            <h3 class="text-success">19.1%</h3>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: 19.1%"></div>
+                                            </div>
+                                            <small class="text-muted">Excelente (meta: 15%)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-warning">
+                                        <div class="card-body">
+                                            <h6 class="card-title">ROE</h6>
+                                            <h3 class="text-warning">22.4%</h3>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" style="width: 22.4%"></div>
+                                            </div>
+                                            <small class="text-muted">Adecuado (meta: 20%)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Análisis Detallado -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Análisis Detallado</h6>
+                            <div class="accordion" id="analisisAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#analisisRentabilidad">
+                                            Análisis de Rentabilidad
+                                        </button>
+                                    </h2>
+                                    <div id="analisisRentabilidad" class="accordion-collapse collapse show" data-bs-parent="#analisisAccordion">
+                                        <div class="accordion-body">
+                                            <p><strong>Desempeño sólido:</strong> La empresa mantiene un margen bruto del 40%, superior al objetivo del 35%. El margen neto del 19.1% indica buena gestión de costos operativos.</p>
+                                            <p><strong>Tendencia positiva:</strong> Comparado con el mes anterior, la utilidad neta aumentó 3.8%, reflejando crecimiento sostenido.</p>
+                                            <p><strong>Recomendación:</strong> Mantener estrategia actual y explorar oportunidades para optimizar costos comerciales.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#analisisLiquidez">
+                                            Análisis de Liquidez
+                                        </button>
+                                    </h2>
+                                    <div id="analisisLiquidez" class="accordion-collapse collapse" data-bs-parent="#analisisAccordion">
+                                        <div class="accordion-body">
+                                            <p><strong>Posición saludable:</strong> El saldo operativo de $186,500 proporciona buena liquidez para operaciones diarias.</p>
+                                            <p><strong>Flujo positivo:</strong> Los ingresos operativos superan las salidas, generando acumulación de efectivo.</p>
+                                            <p><strong>Recomendación:</strong> Considerar inversiones de corto plazo para optimizar rendimiento del exceso de efectivo.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#analisisEficiencia">
+                                            Análisis de Eficiencia
+                                        </button>
+                                    </h2>
+                                    <div id="analisisEficiencia" class="accordion-collapse collapse" data-bs-parent="#analisisAccordion">
+                                        <div class="accordion-body">
+                                            <p><strong>Gestión eficiente:</strong> Los gastos operativos representan solo el 16.7% de las ventas, indicando buen control.</p>
+                                            <p><strong>ROE sólido:</strong> El retorno sobre el patrimonio del 22.4% supera el costo de capital.</p>
+                                            <p><strong>Recomendación:</strong> Continuar monitoreando gastos y buscar eficiencias en procesos administrativos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparativo -->
+        <div class="tab-pane fade" id="reporte-comparativo" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-columns me-2"></i> Análisis Comparativo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Período Comparativo -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Comparación Períodos</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th>Ene 2024</th>
+                                            <th>Dic 2023</th>
+                                            <th>Var. %</th>
+                                            <th>Tendencia</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Ventas Netas</td>
+                                            <td class="text-end">$150,000</td>
+                                            <td class="text-end">$142,500</td>
+                                            <td class="text-end text-success">+5.2%</td>
+                                            <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Costo de Ventas</td>
+                                            <td class="text-end">$90,000</td>
+                                            <td class="text-end">$87,000</td>
+                                            <td class="text-end text-danger">+3.4%</td>
+                                            <td><i class="bi bi-arrow-up-circle-fill text-danger"></i></td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Utilidad Neta</td>
+                                            <td class="text-end">$28,700</td>
+                                            <td class="text-end">$27,650</td>
+                                            <td class="text-end text-success">+3.8%</td>
+                                            <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Activo</td>
+                                            <td class="text-end">$205,000</td>
+                                            <td class="text-end">$200,750</td>
+                                            <td class="text-end text-success">+2.1%</td>
+                                            <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparación Empresas -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-primary mb-3">Comparación Empresas</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Indicador</th>
+                                            <th>Empresa Demo S.A.</th>
+                                            <th>Otra Empresa Ltda.</th>
+                                            <th>Promedio Sector</th>
+                                            <th>Ranking</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Margen Neto</td>
+                                            <td class="text-end">19.1%</td>
+                                            <td class="text-end">18.4%</td>
+                                            <td class="text-end">17.5%</td>
+                                            <td><span class="badge bg-success">1°</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>ROE</td>
+                                            <td class="text-end">22.4%</td>
+                                            <td class="text-end">19.2%</td>
+                                            <td class="text-end">18.0%</td>
+                                            <td><span class="badge bg-success">1°</span></td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <td class="fw-bold">Crecimiento Ventas</td>
+                                            <td class="text-end">5.2%</td>
+                                            <td class="text-end">4.8%</td>
+                                            <td class="text-end">4.2%</td>
+                                            <td><span class="badge bg-success">1°</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Liquidez Corriente</td>
+                                            <td class="text-end">1.89</td>
+                                            <td class="text-end">1.75</td>
+                                            <td class="text-end">1.80</td>
+                                            <td><span class="badge bg-success">1°</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="card mt-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-muted fw-bold">Reporte generado para Empresa Demo S.A. - Enero 2024</div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary">
+                    <i class="bi bi-envelope me-2"></i> Enviar por Email
+                </button>
+                <button type="button" class="btn btn-outline-primary">
+                    <i class="bi bi-download me-2"></i> Descargar PDF
+                </button>
+                <button type="button" class="btn btn-outline-success">
+                    <i class="bi bi-file-excel me-2"></i> Exportar Excel
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-printer me-2"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,269 @@
+<button id="sidebarCollapse" class="btn btn-primary rounded-circle p-2 d-md-none position-fixed" style="top: 15px; left: 15px; z-index: 1050; width: 45px; height: 45px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+    <i class="bi bi-list fs-5"></i>
+</button>
+
+<nav id="sidebar" class="sidebar d-flex flex-column flex-shrink-0 p-3 bg-dark" style="width: 280px; transition: all 0.3s;">
+    <!-- Logo y botón para colapsar -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="/" class="d-flex align-items-center text-decoration-none text-white">
+            <i class="bi bi-graph-up-arrow fs-4 me-2"></i>
+            <span class="fs-5 fw-bold">FinanzasCorporativas</span>
+        </a>
+    </div>
+
+    <hr class="bg-white opacity-25 my-2">
+
+    <!-- Menú principal -->
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item mb-2">
+            <a href="/empresas" class="nav-link text-white py-2 px-3 rounded-3 active">
+                <i class="bi bi-building-fill me-3"></i>
+                <span>Empresas</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="/carga-mensual" class="nav-link text-white py-2 px-3 rounded-3">
+                <i class="bi bi-calendar-month-fill me-3"></i>
+                <span>Carga Mensual</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="/consolidacion" class="nav-link text-white py-2 px-3 rounded-3">
+                <i class="bi bi-diagram-3-fill me-3"></i>
+                <span>Consolidación</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="/reportes" class="nav-link text-white py-2 px-3 rounded-3">
+                <i class="bi bi-file-earmark-bar-graph-fill me-3"></i>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="/configuracion" class="nav-link text-white py-2 px-3 rounded-3">
+                <i class="bi bi-gear-fill me-3"></i>
+                <span>Configuración</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Botón de tema -->
+    <div class="mt-3 mb-3">
+        <button id="themeToggle" class="btn btn-outline-light w-100" type="button">
+            <i class="bi bi-moon-stars me-2"></i>
+            <span id="themeText">Tema Oscuro</span>
+        </button>
+    </div>
+
+    <!-- Usuario y Cerrar Sesión -->
+    <div class="mt-auto pt-3 border-top border-secondary">
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle fs-4 me-2"></i>
+                <span>Usuario</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Configuración</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Overlay para móviles -->
+<div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 z-10" style="display: none;"></div>
+
+<style>
+    /* Estilos para el tema oscuro */
+    [data-bs-theme="dark"] {
+        --bs-body-bg: #1a1a1a;
+        --bs-body-color: #e0e0e0;
+        --bs-border-color: #444;
+    }
+
+    /* Estilos para el sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1040;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        background-color: #212529 !important;
+    }
+    
+    /* Efecto hover en los enlaces */
+    .nav-link {
+        transition: all 0.2s;
+        color: #e0e0e0 !important;
+    }
+    
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .nav-link.active {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    /* Estilos para móviles */
+    @media (max-width: 767.98px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: 280px !important;
+        }
+        
+        .sidebar.show {
+            transform: translateX(0);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.5);
+        }
+        
+        body.sidebar-open {
+            overflow: hidden;
+        }
+        
+        #sidebarOverlay {
+            display: block !important;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1039;
+        }
+        
+        #sidebarOverlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    /* Ajustes para el contenido principal */
+    .main-content {
+        transition: margin-left 0.3s;
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    @media (min-width: 768px) {
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarCollapse = document.getElementById('sidebarCollapse');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const body = document.body;
+        const html = document.documentElement;
+
+        // Función para alternar el menú
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+                body.classList.toggle('sidebar-open');
+                
+                // Bloquear scroll cuando el menú está abierto
+                body.style.overflow = body.classList.contains('sidebar-open') ? 'hidden' : '';
+            }
+        }
+
+        // Alternar tema oscuro/claro
+        function toggleTheme() {
+            const isDark = html.getAttribute('data-bs-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Actualizar botón
+            const themeToggle = document.getElementById('themeToggle');
+            const themeText = document.getElementById('themeText');
+            const icon = themeToggle.querySelector('i');
+            
+            if (newTheme === 'dark') {
+                icon.classList.remove('bi-moon-stars');
+                icon.classList.add('bi-sun');
+                themeText.textContent = 'Tema Claro';
+            } else {
+                icon.classList.remove('bi-sun');
+                icon.classList.add('bi-moon-stars');
+                themeText.textContent = 'Tema Oscuro';
+            }
+        }
+
+        // Cargar tema guardado
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-bs-theme', savedTheme);
+        
+        // Actualizar botón según el tema guardado
+        const themeToggle = document.getElementById('themeToggle');
+        const themeText = document.getElementById('themeText');
+        const icon = themeToggle.querySelector('i');
+        
+        if (savedTheme === 'dark') {
+            icon.classList.remove('bi-moon-stars');
+            icon.classList.add('bi-sun');
+            themeText.textContent = 'Tema Claro';
+        }
+
+        // Event listeners
+        sidebarCollapse?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        sidebarOverlay?.addEventListener('click', toggleSidebar);
+        
+        // Event listener para el botón de tema
+        themeToggle?.addEventListener('click', toggleTheme);
+
+        // Cerrar menú al hacer clic en un enlace
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // Manejar cambios de tamaño de ventana
+        function handleResize() {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+            }
+        }
+
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(handleResize, 250);
+        });
+
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                !sidebarCollapse.contains(e.target) && 
+                sidebar.classList.contains('show')) {
+                toggleSidebar();
+            }
+        });
+
+        // Inicializar tooltips solo en desktop
+        if (window.innerWidth >= 768) {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        }
+    });
+</script>

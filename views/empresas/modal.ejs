@@ -1,0 +1,84 @@
+<!-- Modal para Nueva Empresa -->
+<div class="modal fade" id="nuevaEmpresaModal" tabindex="-1" aria-labelledby="nuevaEmpresaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nuevaEmpresaModalLabel">
+                    <i class="bi bi-building me-2"></i> Nueva Empresa
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="nuevaEmpresaForm">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Información Básica -->
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-info-circle me-2"></i> Información Básica
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="nombreEmpresa" class="form-label">Nombre de la Empresa <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nombreEmpresa" name="nombre_empresa" required>
+                            <div class="form-text">Nombre completo de la empresa</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="nitRuc" class="form-label">NIT/RUC</label>
+                            <input type="text" class="form-control" id="nitRuc" name="nit_ruc">
+                            <div class="form-text">Número de identificación fiscal</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pais" class="form-label">País</label>
+                            <select class="form-select" id="pais" name="pais">
+                                <option value="">Seleccionar país...</option>
+                                <option value="Bolivia">Bolivia</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="Brasil">Brasil</option>
+                                <option value="Chile">Chile</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Ecuador">Ecuador</option>
+                                <option value="México">México</option>
+                                <option value="Perú">Perú</option>
+                                <option value="Uruguay">Uruguay</option>
+                                <option value="Venezuela">Venezuela</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="grupoEmpresarial" class="form-label">Grupo Empresarial</label>
+                            <select class="form-select" id="grupoEmpresarial" name="id_grupo">
+                                <option value="">Seleccionar grupo...</option>
+                                <!-- Los grupos se cargarán dinámicamente -->
+                            </select>
+                            <div class="form-text">Grupo al que pertenece la empresa</div>
+                        </div>
+
+                        <!-- Información Monetaria -->
+                        <div class="col-12 mt-3">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-cash-coin me-2"></i> Información Monetaria
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="moneda" class="form-label">Moneda Principal <span class="text-danger">*</span></label>
+                            <select class="form-select" id="moneda" name="id_moneda" required>
+                                <option value="">Seleccionar moneda...</option>
+                                <!-- Las monedas se cargarán dinámicamente -->
+                            </select>
+                            <div class="form-text">Moneda en la que se registrarán las operaciones</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-2"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-2"></i> Guardar Empresa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para el Modal (la lógica de crear/editar se maneja en empresa.ejs) -->

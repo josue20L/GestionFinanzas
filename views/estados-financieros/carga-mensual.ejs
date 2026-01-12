@@ -1,0 +1,542 @@
+<h2 class="mb-4">Carga Mensual</h2>
+
+<!-- CSS personalizado para tabs -->
+<link rel="stylesheet" href="/css/carga-mensual.css">
+
+<!-- Selectores de Empresa y Período -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="empresa-select" class="form-label">Empresa</label>
+                <select id="empresa-select" class="form-select">
+                    <option value="">Seleccione una empresa</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="periodo-select" class="form-label">Período (YYYY-MM)</label>
+                <input type="month" id="periodo-select" class="form-control" value="2024-01">
+            </div>
+            <div class="col-md-6">
+                <div class="btn-group w-100">
+                    <button type="button" class="btn btn-primary">
+                        <i class="bi bi-folder-open me-2"></i> Cargar o Crear
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="bi bi-copy me-2"></i> Copiar Mes Anterior
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const selectEmpresa = document.getElementById('empresa-select');
+        const periodoInput = document.getElementById('periodo-select');
+        const formulariosContainer = document.getElementById('formularios-container');
+        const btnCargarCrear = document.querySelector('.btn-group .btn.btn-primary');
+
+        async function cargarEmpresasEnSelect() {
+            try {
+                const response = await fetch('/api/empresas');
+                const empresas = await response.json();
+
+                // Reiniciar opciones, dejando solo el placeholder
+                selectEmpresa.innerHTML = '<option value="">Seleccione una empresa</option>';
+
+                empresas.forEach(empresa => {
+                    const option = document.createElement('option');
+                    option.value = empresa.ID_EMPRESA;
+                    option.textContent = empresa.NOMBRE_EMPRESA || 'Sin nombre';
+                    selectEmpresa.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error al cargar empresas en carga mensual:', error);
+            }
+        }
+
+        await cargarEmpresasEnSelect();
+
+        // Crear u obtener período financiero y luego mostrar formularios
+        if (btnCargarCrear) {
+            btnCargarCrear.addEventListener('click', async function () {
+                const empresaId = selectEmpresa.value;
+                const periodo = periodoInput.value; // formato YYYY-MM
+
+                if (!empresaId || !periodo) {
+                    alert('Seleccione una empresa y un período antes de continuar.');
+                    return;
+                }
+
+                const [anioStr, mesStr] = periodo.split('-');
+                const anio = parseInt(anioStr, 10);
+                const mes = parseInt(mesStr, 10);
+
+                try {
+                    const response = await fetch('/api/periodos-financieros/crear-o-obtener', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id_empresa: parseInt(empresaId, 10),
+                            anio,
+                            mes
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Error al preparar el período financiero');
+                    }
+
+                    // Guardar result.periodo.ID_PERIODO en un hidden para usarlo en los formularios
+                    // Guardar ID_PERIODO en un hidden dentro del contenedor
+                    let hiddenInput = document.getElementById('id_periodo_hidden');
+                    if (!hiddenInput) {
+                        hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.id = 'id_periodo_hidden';
+                        hiddenInput.name = 'id_periodo';
+                        formulariosContainer.appendChild(hiddenInput);
+                    }
+                    hiddenInput.value = result.periodo.ID_PERIODO;
+
+                    // Cargar datos del Estado de Resultados existente (si lo hay)
+                    await cargarEstadoResultadosFormulario(result.periodo.ID_PERIODO);
+                    await cargarBalanceGeneralFormulario(result.periodo.ID_PERIODO);
+                    formulariosContainer.style.display = 'block';
+                } catch (error) {
+                    console.error('Error al crear/obtener período financiero:', error);
+                    alert(error.message || 'Error al crear/obtener el período financiero');
+                }
+            });
+        }
+        
+        // Cargar datos en el formulario de Estado de Resultados desde la API
+async function cargarEstadoResultadosFormulario(idPeriodo) {
+    try {
+        const response = await fetch(`/api/estado-resultados/${idPeriodo}`);
+        const data = await response.json();
+
+        const form = document.querySelector('#estado-resultados');
+        if (!form) return;
+
+        // Si no hay datos, limpiar y salir
+        if (!data) {
+            form.querySelectorAll('input[type="number"]').forEach(inp => inp.value = '');
+            setupCalculosEstadoResultados(); // Configurar cálculos aunque no haya datos
+            return;
+        }
+
+        // Mapear campos del backend al formulario
+        const map = {
+            VENTAS_NETAS: 'ventas_netas',
+            COSTO_VENTAS: 'costo_ventas',
+            GASTO_ADMINISTRATIVO: 'gasto_administrativo',
+            GASTO_COMERCIALIZACION: 'gasto_comercializacion',
+            GASTO_SIG: 'gasto_sig',
+            GASTO_TRIBUTARIO: 'gasto_tributario',
+            GASTO_FINANCIERO: 'gasto_financiero',
+            OTROS_INGRESOS: 'otros_ingresos',
+            OTROS_EGRESOS: 'otros_egresos',
+            UTILIDAD_VENTAS: 'utilidad_ventas',
+            GASTO_OPERATIVO: 'gasto_operativo',
+            EBIT: 'ebit',
+            UTILIDAD_DESPUES_IMPUESTOS: 'utilidad_despues_impuestos',
+            UTILIDAD_NETA: 'utilidad_neta'
+        };
+
+        Object.entries(map).forEach(([dbField, inputName]) => {
+            const input = form.querySelector(`input[name="${inputName}"]`);
+            if (input && Object.prototype.hasOwnProperty.call(data, dbField)) {
+                input.value = data[dbField] ?? '';
+            }
+        });
+
+        // Configurar cálculos en tiempo real
+        setupCalculosEstadoResultados();
+    } catch (error) {
+        console.error('Error al cargar Estado de Resultados:', error);
+    }
+}
+
+        // Configurar cálculos en tiempo real para Estado de Resultados
+function setupCalculosEstadoResultados() {
+    const form = document.querySelector('#estado-resultados');
+    if (!form) return;
+
+    // Campos base que disparan cálculos
+    const camposBase = [
+        'ventas_netas', 'costo_ventas',
+        'gasto_administrativo', 'gasto_comercializacion', 'gasto_sig',
+        'gasto_tributario', 'gasto_financiero',
+        'otros_ingresos', 'otros_egresos'
+    ];
+
+    camposBase.forEach(campo => {
+        const input = form.querySelector(`input[name="${campo}"]`);
+        if (input) {
+            input.addEventListener('input', () => calcularEstadoResultados());
+        }
+    });
+
+    // Calcular al cargar datos
+    calcularEstadoResultados();
+}
+
+function calcularEstadoResultados() {
+    const form = document.querySelector('#estado-resultados');
+    if (!form) return;
+
+    const getVal = (name) => {
+        const inp = form.querySelector(`input[name="${name}"]`);
+        return inp && inp.value !== '' ? parseFloat(inp.value) : 0;
+    };
+
+    // Cálculos
+    const ventasNetas = getVal('ventas_netas');
+    const costoVentas = getVal('costo_ventas');
+    const gastoAdministrativo = getVal('gasto_administrativo');
+    const gastoComercializacion = getVal('gasto_comercializacion');
+    const gastoSig = getVal('gasto_sig');
+    const gastoTributario = getVal('gasto_tributario');
+    const gastoFinanciero = getVal('gasto_financiero');
+    const otrosIngresos = getVal('otros_ingresos');
+    const otrosEgresos = getVal('otros_egresos');
+
+    // Utilidad en Ventas
+    const utilidadVentas = ventasNetas - costoVentas;
+    setInputValue('utilidad_ventas', utilidadVentas);
+
+    // Gasto Operativo
+    const gastoOperativo = gastoAdministrativo + gastoComercializacion + gastoSig;
+    setInputValue('gasto_operativo', gastoOperativo);
+
+    // EBIT (Utilidad antes de intereses e impuestos)
+    const ebit = utilidadVentas - gastoOperativo;
+    setInputValue('ebit', ebit);
+
+    // Utilidad Después de Impuestos
+    const utilidadDespuesImpuestos = ebit - gastoTributario - gastoFinanciero;
+    setInputValue('utilidad_despues_impuestos', utilidadDespuesImpuestos);
+
+    // Utilidad Neta
+    const utilidadNeta = utilidadDespuesImpuestos + otrosIngresos - otrosEgresos;
+    setInputValue('utilidad_neta', utilidadNeta);
+}
+
+function setInputValue(name, value) {
+    const input = document.querySelector(`#estado-resultados input[name="${name}"]`);
+    if (input) {
+        input.value = value || 0;
+    }
+}
+
+        // Cargar datos en el formulario de Balance General desde la API
+async function cargarBalanceGeneralFormulario(idPeriodo) {
+    try {
+        const response = await fetch(`/api/balance-general/${idPeriodo}`);
+        const data = await response.json();
+
+        const form = document.querySelector('#balance-general');
+        if (!form) return;
+
+        // Si no hay datos, limpiar y salir
+        if (!data) {
+            form.querySelectorAll('input[type="number"]').forEach(inp => inp.value = '');
+            setupCalculosBalanceGeneral(); // Configurar cálculos aunque no haya datos
+            return;
+        }
+
+        // Mapear campos del backend al formulario
+        const map = {
+            DISPONIBLE: 'disponible',
+            EXIGIBLE: 'exigible',
+            REALIZABLE: 'realizable',
+            ACTIVO_CORRIENTE: 'activo_corriente',
+            ACTIVO_FIJO_TANGIBLE: 'activo_fijo_tangible',
+            ACTIVO_DIFERIDO: 'activo_diferido',
+            OTROS_ACTIVOS: 'otros_activos',
+            ACTIVO_NO_CORRIENTE: 'activo_no_corriente',
+            TOTAL_ACTIVO: 'total_activo',
+            PASIVO_CORRIENTE: 'pasivo_corriente',
+            PREVISION_BENEFICIOS_SOCIALES: 'prevision_beneficios_sociales',
+            OBLIGACIONES_BANCARIAS: 'obligaciones_bancarias',
+            INTERESES_POR_PAGAR: 'intereses_pagar',
+            PROCESOS_LEGALES: 'procesos_legales',
+            PASIVO_NO_CORRIENTE: 'pasivo_no_corriente',
+            PATRIMONIO: 'patrimonio',
+            TOTAL_PASIVO_PATRIMONIO: 'total_pasivo_patrimonio'
+        };
+
+        Object.entries(map).forEach(([dbField, inputName]) => {
+            const input = form.querySelector(`input[name="${inputName}"]`);
+            if (input && Object.prototype.hasOwnProperty.call(data, dbField)) {
+                input.value = data[dbField] ?? '';
+            }
+        });
+
+        // Configurar cálculos en tiempo real
+        setupCalculosBalanceGeneral();
+    } catch (error) {
+        console.error('Error al cargar Balance General:', error);
+    }
+}
+
+        // Configurar cálculos en tiempo real para Balance General
+function setupCalculosBalanceGeneral() {
+    const form = document.querySelector('#balance-general');
+    if (!form) return;
+
+    // Campos base que disparan cálculos
+    const camposBase = [
+        'disponible', 'exigible', 'realizable',
+        'activo_fijo_tangible', 'activo_diferido', 'otros_activos',
+        'pasivo_corriente',
+        'prevision_beneficios_sociales', 'obligaciones_bancarias', 
+        'intereses_pagar', 'procesos_legales',
+        'patrimonio'
+    ];
+
+    camposBase.forEach(campo => {
+        const input = form.querySelector(`input[name="${campo}"]`);
+        if (input) {
+            input.addEventListener('input', () => calcularBalanceGeneral());
+        }
+    });
+
+    // Calcular al cargar datos
+    calcularBalanceGeneral();
+}
+
+function calcularBalanceGeneral() {
+    const form = document.querySelector('#balance-general');
+    if (!form) return;
+
+    const getVal = (name) => {
+        const inp = form.querySelector(`input[name="${name}"]`);
+        return inp && inp.value !== '' ? parseFloat(inp.value) : 0;
+    };
+
+    // ACTIVO CORRIENTE
+    const disponible = getVal('disponible');
+    const exigible = getVal('exigible');
+    const realizable = getVal('realizable');
+    const activoCorriente = disponible + exigible + realizable;
+    setInputValueBG('activo_corriente', activoCorriente);
+
+    // ACTIVO NO CORRIENTE
+    const activoFijoTangible = getVal('activo_fijo_tangible');
+    const activoDiferido = getVal('activo_diferido');
+    const otrosActivos = getVal('otros_activos');
+    const activoNoCorriente = activoFijoTangible + activoDiferido + otrosActivos;
+    setInputValueBG('activo_no_corriente', activoNoCorriente);
+
+    // TOTAL ACTIVO
+    const totalActivo = activoCorriente + activoNoCorriente;
+    setInputValueBG('total_activo', totalActivo);
+
+    // PASIVO NO CORRIENTE
+    const previsionBeneficiosSociales = getVal('prevision_beneficios_sociales');
+    const obligacionesBancarias = getVal('obligaciones_bancarias');
+    const interesesPagar = getVal('intereses_pagar');
+    const procesosLegales = getVal('procesos_legales');
+    const pasivoNoCorriente = previsionBeneficiosSociales + obligacionesBancarias + interesesPagar + procesosLegales;
+    setInputValueBG('pasivo_no_corriente', pasivoNoCorriente);
+
+    // TOTAL PASIVO Y PATRIMONIO
+    const pasivoCorriente = getVal('pasivo_corriente');
+    const patrimonio = getVal('patrimonio');
+    const totalPasivoPatrimonio = pasivoCorriente + pasivoNoCorriente + patrimonio;
+    setInputValueBG('total_pasivo_patrimonio', totalPasivoPatrimonio);
+}
+
+function setInputValueBG(name, value) {
+    const input = document.querySelector(`#balance-general input[name="${name}"]`);
+    if (input) {
+        input.value = value || 0;
+    }
+}
+
+        // Manejar clic en "Guardar Datos" para Estado de Resultados y Balance General
+const btnGuardarDatos = document.querySelector('#formularios-container .btn.btn-success');
+if (btnGuardarDatos) {
+    btnGuardarDatos.addEventListener('click', async function () {
+        const idPeriodoHidden = document.getElementById('id_periodo_hidden');
+        if (!idPeriodoHidden || !idPeriodoHidden.value) {
+            alert('No hay período financiero seleccionado. Use "Cargar o Crear" primero.');
+            return;
+        }
+
+        // Guardar Estado de Resultados
+        const formER = document.querySelector('#estado-resultados');
+        if (formER) {
+            const getVal = (name) => {
+                const inp = formER.querySelector(`input[name="${name}"]`);
+                return inp && inp.value !== '' ? parseFloat(inp.value) : 0;
+            };
+
+            const payloadER = {
+                id_periodo: parseInt(idPeriodoHidden.value, 10),
+                ventas_netas: getVal('ventas_netas'),
+                costo_ventas: getVal('costo_ventas'),
+                gasto_administrativo: getVal('gasto_administrativo'),
+                gasto_comercializacion: getVal('gasto_comercializacion'),
+                gasto_sig: getVal('gasto_sig'),
+                gasto_tributario: getVal('gasto_tributario'),
+                gasto_financiero: getVal('gasto_financiero'),
+                otros_ingresos: getVal('otros_ingresos'),
+                otros_egresos: getVal('otros_egresos')
+            };
+
+            try {
+                const response = await fetch('/api/estado-resultados', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payloadER)
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || 'Error al guardar Estado de Resultados');
+                }
+
+                console.log('Estado de Resultados guardado correctamente');
+            } catch (error) {
+                console.error('Error al guardar Estado de Resultados:', error);
+                alert(error.message || 'Error al guardar Estado de Resultados');
+                return; // Detener si hay error en ER
+            }
+        }
+
+        // Guardar Balance General
+        const formBG = document.querySelector('#balance-general');
+        if (formBG) {
+            const getVal = (name) => {
+                const inp = formBG.querySelector(`input[name="${name}"]`);
+                return inp && inp.value !== '' ? parseFloat(inp.value) : 0;
+            };
+
+            const payloadBG = {
+                id_periodo: parseInt(idPeriodoHidden.value, 10),
+                disponible: getVal('disponible'),
+                exigible: getVal('exigible'),
+                realizable: getVal('realizable'),
+                activo_fijo_tangible: getVal('activo_fijo_tangible'),
+                activo_diferido: getVal('activo_diferido'),
+                otros_activos: getVal('otros_activos'),
+                pasivo_corriente: getVal('pasivo_corriente'),
+                prevision_beneficios_sociales: getVal('prevision_beneficios_sociales'),
+                obligaciones_bancarias: getVal('obligaciones_bancarias'),
+                intereses_pagar: getVal('intereses_pagar'),
+                procesos_legales: getVal('procesos_legales'),
+                patrimonio: getVal('patrimonio')
+            };
+
+            try {
+                const response = await fetch('/api/balance-general', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payloadBG)
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || 'Error al guardar Balance General');
+                }
+
+                console.log('Balance General guardado correctamente');
+            } catch (error) {
+                console.error('Error al guardar Balance General:', error);
+                alert(error.message || 'Error al guardar Balance General');
+                return; // Detener si hay error en BG
+            }
+        }
+
+        // Si todo salió bien, mostrar mensaje y recargar datos
+        alert('Datos guardados correctamente');
+
+        // Recargar ambos formularios para ver los campos calculados
+        await cargarEstadoResultadosFormulario(idPeriodoHidden.value);
+        await cargarBalanceGeneralFormulario(idPeriodoHidden.value);
+    });
+}
+    });
+</script>
+
+<!-- Contenedor para los formularios (oculto hasta que se presione Cargar o Crear) -->
+<div id="formularios-container" style="display: none;">
+    <!-- Tabs para seleccionar formulario -->
+    <ul class="nav nav-tabs mb-4" id="formulariosTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-estado-resultados" data-bs-toggle="tab" data-bs-target="#estado-resultados" type="button" role="tab">
+                <i class="bi bi-graph-up-arrow me-2"></i> 
+                <span class="fw-bold">ESTADO DE RESULTADOS</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-balance-general" data-bs-toggle="tab" data-bs-target="#balance-general" type="button" role="tab">
+                <i class="bi bi-bank2 me-2"></i> 
+                <span class="fw-bold">BALANCE GENERAL</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-flujo-operativo" data-bs-toggle="tab" data-bs-target="#flujo-operativo" type="button" role="tab">
+                <i class="bi bi-cash-coin me-2"></i> 
+                <span class="fw-bold">FLUJO OPERATIVO</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-flujo-corporativo" data-bs-toggle="tab" data-bs-target="#flujo-corporativo" type="button" role="tab">
+                <i class="bi bi-building2 me-2"></i> 
+                <span class="fw-bold">FLUJO CORPORATIVO</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenido de los tabs -->
+    <div class="tab-content" id="formulariosTabContent">
+        <!-- Estado de Resultados -->
+        <div class="tab-pane fade show active" id="estado-resultados" role="tabpanel">
+            <%- include('estado-resultados') %>
+        </div>
+        
+        <!-- Balance General -->
+        <div class="tab-pane fade" id="balance-general" role="tabpanel">
+            <%- include('balance-general') %>
+        </div>
+        
+        <!-- Flujo Operativo -->
+        <div class="tab-pane fade" id="flujo-operativo" role="tabpanel">
+            <%- include('flujo-operativo') %>
+        </div>
+        
+        <!-- Flujo Corporativo -->
+        <div class="tab-pane fade" id="flujo-corporativo" role="tabpanel">
+            <%- include('flujo-corporativo') %>
+        </div>
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="card mt-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div id="mensaje-validacion" class="text-success fw-bold">Datos de ejemplo cargados</div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-danger">
+                    <i class="bi bi-trash me-2"></i> Eliminar
+                </button>
+                <button type="button" class="btn btn-success">
+                    <i class="bi bi-save me-2"></i> Guardar Datos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

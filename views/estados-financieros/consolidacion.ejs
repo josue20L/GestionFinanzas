@@ -1,0 +1,136 @@
+<h2 class="mb-4">Consolidación</h2>
+
+<!-- CSS personalizado para tabs -->
+<link rel="stylesheet" href="/css/carga-mensual.css">
+
+<!-- Selectores de rango y empresas -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="desde-select" class="form-label">Desde</label>
+                <input type="month" id="desde-select" class="form-control" value="2023-01">
+            </div>
+            <div class="col-md-3">
+                <label for="hasta-select" class="form-label">Hasta</label>
+                <input type="month" id="hasta-select" class="form-control" value="2024-01">
+            </div>
+            <div class="col-md-6">
+                <div class="btn-group w-100">
+                    <button type="button" class="btn btn-primary">
+                        <i class="bi bi-clipboard-data me-2"></i> Generar Reporte
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise me-2"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Selección de empresas -->
+        <div class="form-group mt-3">
+            <label class="form-label">Seleccionar Empresas</label>
+            <div class="border rounded p-3" style="max-height: 150px; overflow-y: auto;">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="empresa-1" checked>
+                    <label class="form-check-label" for="empresa-1">
+                        Empresa Demo S.A.
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="empresa-2" checked>
+                    <label class="form-check-label" for="empresa-2">
+                        Otra Empresa Ltda.
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="empresa-3">
+                    <label class="form-check-label" for="empresa-3">
+                        Empresa Tercera S.A.
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="empresa-4">
+                    <label class="form-check-label" for="empresa-4">
+                        Empresa Cuarta S.A.
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="empresa-5">
+                    <label class="form-check-label" for="empresa-5">
+                        Empresa Quinta S.A.
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor para los formularios consolidados -->
+<div id="formularios-container">
+    <!-- Tabs para seleccionar formulario -->
+    <ul class="nav nav-tabs mb-4" id="formulariosTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-estado-resultados" data-bs-toggle="tab" data-bs-target="#estado-resultados" type="button" role="tab">
+                <i class="bi bi-graph-up-arrow me-2"></i> 
+                <span class="fw-bold">ESTADO DE RESULTADOS</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-balance-general" data-bs-toggle="tab" data-bs-target="#balance-general" type="button" role="tab">
+                <i class="bi bi-bank2 me-2"></i> 
+                <span class="fw-bold">BALANCE GENERAL</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-flujo-operativo" data-bs-toggle="tab" data-bs-target="#flujo-operativo" type="button" role="tab">
+                <i class="bi bi-cash-coin me-2"></i> 
+                <span class="fw-bold">FLUJO OPERATIVO</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-flujo-corporativo" data-bs-toggle="tab" data-bs-target="#flujo-corporativo" type="button" role="tab">
+                <i class="bi bi-building2 me-2"></i> 
+                <span class="fw-bold">FLUJO CORPORATIVO</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenido de los tabs -->
+    <div class="tab-content" id="formulariosTabContent">
+        <!-- Estado de Resultados Consolidado -->
+        <div class="tab-pane fade show active" id="estado-resultados" role="tabpanel">
+            <%- include('consolidado-estado-resultados') %>
+        </div>
+        
+        <!-- Balance General Consolidado -->
+        <div class="tab-pane fade" id="balance-general" role="tabpanel">
+            <%- include('consolidado-balance-general') %>
+        </div>
+        
+        <!-- Flujo Operativo Consolidado -->
+        <div class="tab-pane fade" id="flujo-operativo" role="tabpanel">
+            <%- include('consolidado-flujo-operativo') %>
+        </div>
+        
+        <!-- Flujo Corporativo Consolidado -->
+        <div class="tab-pane fade" id="flujo-corporativo" role="tabpanel">
+            <%- include('consolidado-flujo-corporativo') %>
+        </div>
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="card mt-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-muted fw-bold">Datos consolidados de 2 empresas</div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary">
+                    <i class="bi bi-download me-2"></i> Exportar a Excel
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-printer me-2"></i> Imprimir Reporte
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

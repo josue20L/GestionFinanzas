@@ -1,0 +1,71 @@
+/* Estilos personalizados para los tabs de carga mensual */
+
+/* Mejorar visibilidad de las letras en los tabs */
+.nav-tabs .nav-link {
+    font-weight: 600 !important;
+    color: #333 !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Estado hover de los tabs */
+.nav-tabs .nav-link:hover {
+    color: #000 !important;
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+}
+
+/* Tab activo con mejor contraste y resaltado */
+.nav-tabs .nav-link.active {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-color: #dee2e6 !important;
+    font-weight: 700 !important;
+    border-bottom: 3px solid #0066cc !important;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Asegurar que los iconos sean visibles */
+.nav-tabs .nav-link i {
+    opacity: 1 !important;
+    color: inherit !important;
+    margin-right: 4px !important;
+}
+
+/* Mejorar espaciado y tamaño */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0 !important;
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid transparent !important;
+    border-bottom: none !important;
+    margin-bottom: -2px !important;
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Efecto de transición suave */
+.nav-tabs .nav-link.active {
+    border-radius: 6px 6px 0 0 !important;
+}
+
+/* Resaltar el tab activo con borde inferior */
+.nav-tabs .nav-link.active::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    background-color: #0066cc !important;
+    border-radius: 0 0 6px 6px !important;
+}
