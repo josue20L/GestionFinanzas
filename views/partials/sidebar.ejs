@@ -16,31 +16,31 @@
     <!-- Menú principal -->
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item mb-2">
-            <a href="/empresas" class="nav-link text-white py-2 px-3 rounded-3 active">
+            <a href="/empresas" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/empresas">
                 <i class="bi bi-building-fill me-3"></i>
                 <span>Empresas</span>
             </a>
         </li>
         <li class="nav-item mb-2">
-            <a href="/carga-mensual" class="nav-link text-white py-2 px-3 rounded-3">
+            <a href="/carga-mensual" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/carga-mensual">
                 <i class="bi bi-calendar-month-fill me-3"></i>
                 <span>Carga Mensual</span>
             </a>
         </li>
         <li class="nav-item mb-2">
-            <a href="/consolidacion" class="nav-link text-white py-2 px-3 rounded-3">
+            <a href="/consolidacion" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/consolidacion">
                 <i class="bi bi-diagram-3-fill me-3"></i>
                 <span>Consolidación</span>
             </a>
         </li>
         <li class="nav-item mb-2">
-            <a href="/reportes" class="nav-link text-white py-2 px-3 rounded-3">
+            <a href="/reportes" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/reportes">
                 <i class="bi bi-file-earmark-bar-graph-fill me-3"></i>
                 <span>Reportes</span>
             </a>
         </li>
         <li class="nav-item mb-2">
-            <a href="/configuracion" class="nav-link text-white py-2 px-3 rounded-3">
+            <a href="/configuracion" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/configuracion">
                 <i class="bi bi-gear-fill me-3"></i>
                 <span>Configuración</span>
             </a>
@@ -225,7 +225,55 @@
         // Event listener para el botón de tema
         themeToggle?.addEventListener('click', toggleTheme);
 
-        // Cerrar menú al hacer clic en un enlace
+        // Event listeners para navegación del sidebar con validación de cambios
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetUrl = this.getAttribute('data-href');
+                
+                // Verificar si hay cambios sin guardar (solo en carga mensual)
+                if (window.location.pathname === '/carga-mensual' && window.cargaMensualManager) {
+                    if (window.cargaMensualManager.hayCambiosSinGuardarEnFormularios()) {
+                        // Mostrar modal de confirmación
+                        const modal = new bootstrap.Modal(document.getElementById('modalAlertaCambios'));
+                        const confirmBtn = document.querySelector('#modalAlertaCambios .btn-confirmar');
+                        const cancelBtn = document.querySelector('#modalAlertaCambios .btn-cancelar');
+                        
+                        // Configurar botones del modal
+                        confirmBtn.onclick = function() {
+                            modal.hide();
+                            window.location.href = targetUrl;
+                        };
+                        
+                        cancelBtn.onclick = function() {
+                            modal.hide();
+                        };
+                        
+                        // Configurar botón de salir sin guardar
+                        const salirSinGuardarBtn = document.querySelector('#modalAlertaCambios .btn-outline-secondary');
+                        if (salirSinGuardarBtn) {
+                            salirSinGuardarBtn.onclick = function() {
+                                modal.hide();
+                                if (window.modalCambios) {
+                                    window.modalCambios.salirSinGuardar(targetUrl);
+                                } else {
+                                    window.location.href = targetUrl;
+                                }
+                            };
+                        }
+                        
+                        modal.show();
+                        return;
+                    }
+                }
+                
+                // Si no hay cambios, navegar normalmente
+                window.location.href = targetUrl;
+            });
+        });
+
+        // Cerrar menú al hacer clic en un enlace (móviles)
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function() {
                 if (window.innerWidth < 768) {

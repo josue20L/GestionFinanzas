@@ -100,6 +100,7 @@ const estadoResultadosRoutes = require('./src/routes/estadoResultados');
 const balanceGeneralRoutes = require('./src/routes/balanceGeneral');
 const flujoOperativoRoutes = require('./src/routes/flujoOperativo');
 const flujoCorporativoRoutes = require('./src/routes/flujoCorporativo');
+const consolidacionRoutes = require('./src/routes/consolidacion');
 const empresasViewsRoutes = require('./src/routes/empresasViews');
 
 app.use('/api', empresasRoutes);
@@ -108,6 +109,7 @@ app.use('/api', estadoResultadosRoutes);
 app.use('/api', balanceGeneralRoutes);
 app.use('/api', flujoOperativoRoutes);
 app.use('/api', flujoCorporativoRoutes);
+app.use('/api', consolidacionRoutes);
 app.use('/empresas', empresasViewsRoutes);
 
 // Ruta de Consolidación

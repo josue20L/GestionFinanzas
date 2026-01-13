@@ -1,6 +1,6 @@
 class FlujoOperativoManager {
-    constructor() {
-        this.container = document.getElementById('flujo-operativo');
+    constructor(container) {
+        this.container = container;
         this.init();
     }
 
@@ -74,17 +74,29 @@ class FlujoOperativoManager {
     async cargarDatos(periodoId) {
         try {
             console.log('💰 Cargando Flujo Operativo...');
+            console.log('🔍 Periodo ID:', periodoId);
+            console.log('🔍 Container:', this.container);
             
             const response = await fetch(`/api/flujo-operativo/${periodoId}`);
             const data = await response.json();
+            
+            console.log('🔍 Response OK:', response.ok);
+            console.log('🔍 Data recibida:', data);
 
             if (response.ok && data) {
                 let camposCargados = 0;
                 Object.keys(data).forEach(key => {
+                    console.log('🔍 Buscando input:', `[name="${key}"]`);
                     const input = this.container.querySelector(`[name="${key}"]`);
+                    console.log('🔍 Input encontrado:', input);
+                    console.log('🔍 Input value actual:', input ? input.value : 'NULL');
+                    
                     if (input) {
                         input.value = data[key] || 0;
                         camposCargados++;
+                        console.log('🔍 Input actualizado:', key, '=', data[key] || 0);
+                    } else {
+                        console.error('❌ Input NO encontrado para:', key);
                     }
                 });
                 

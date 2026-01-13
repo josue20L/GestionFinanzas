@@ -1,6 +1,6 @@
 class EstadoResultadosManager {
-    constructor() {
-        this.container = document.getElementById('estado-resultados');
+    constructor(container) {
+        this.container = container;
         this.init();
     }
 
@@ -78,17 +78,34 @@ class EstadoResultadosManager {
     async cargarDatos(periodoId) {
         try {
             console.log('📋 Cargando Estado de Resultados...');
+            console.log('🔍 Periodo ID:', periodoId);
+            console.log('🔍 Container:', this.container);
             
             const response = await fetch(`/api/estado-resultados/${periodoId}`);
             const data = await response.json();
+            
+            console.log('🔍 Response OK:', response.ok);
+            console.log('🔍 Data recibida:', data);
 
             if (response.ok && data) {
                 let camposCargados = 0;
-                Object.keys(data).forEach(key => {
-                    const input = this.container.querySelector(`[name="${key}"]`);
+                Object.keys(data).forEach(rawKey => {
+                    // Saltar claves de identificadores
+                    if (rawKey.startsWith('ID_')) return;
+
+                    // Mapear nombre de campo del backend (UPPER_SNAKE) a input (lower_snake)
+                    const key = rawKey.toLowerCase();
+                    console.log('🔍 Buscando input:', `[name="${key}"]`);
+                    const input = this.container?.querySelector(`[name="${key}"]`);
+                    console.log('🔍 Input encontrado:', input);
+                    console.log('🔍 Input value actual:', input ? input.value : 'NULL');
+                    
                     if (input) {
-                        input.value = data[key] || 0;
+                        input.value = data[rawKey] || 0;
                         camposCargados++;
+                        console.log('🔍 Input actualizado:', key, '=', data[rawKey] || 0);
+                    } else {
+                        console.error('❌ Input NO encontrado para:', key);
                     }
                 });
                 

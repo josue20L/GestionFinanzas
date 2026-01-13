@@ -13,6 +13,9 @@ class CargaMensualManager {
         this.estadoResultadosManager = null;
         this.balanceGeneralManager = null;
         
+        // Hacer el manager disponible globalmente para el sidebar
+        window.cargaMensualManager = this;
+        
         this.init();
     }
 
@@ -123,19 +126,16 @@ class CargaMensualManager {
     }
 
     inicializarManagers() {
-        // Inicializar managers solo cuando los formularios estén visibles
-        if (!this.estadoResultadosManager) {
-            this.estadoResultadosManager = new EstadoResultadosManager();
-        }
-        if (!this.balanceGeneralManager) {
-            this.balanceGeneralManager = new BalanceGeneralManager();
-        }
-        if (!this.flujoOperativoManager) {
-            this.flujoOperativoManager = new FlujoOperativoManager();
-        }
-        if (!this.flujoCorporativoManager) {
-            this.flujoCorporativoManager = new FlujoCorporativoManager();
-        }
+        // Siempre re-instanciar managers con el contenedor correcto de cada pestaña
+        const erContainer = document.getElementById('estado-resultados');
+        const bgContainer = document.getElementById('balance-general');
+        const foContainer = document.getElementById('flujo-operativo');
+        const fcContainer = document.getElementById('flujo-corporativo');
+
+        this.estadoResultadosManager = new EstadoResultadosManager(erContainer);
+        this.balanceGeneralManager = new BalanceGeneralManager(bgContainer);
+        this.flujoOperativoManager = new FlujoOperativoManager(foContainer);
+        this.flujoCorporativoManager = new FlujoCorporativoManager(fcContainer);
     }
 
     async cargarDatosDelPeriodo() {
@@ -162,7 +162,7 @@ class CargaMensualManager {
                 // Actualizar mensaje de validación
                 const mensajeValidacion = document.getElementById('mensaje-validacion');
                 if (mensajeValidacion) {
-                    mensajeValidacion.textContent = 'Datos cargados correctamente';
+                    mensajeValidacion.textContent = 'Datos procesados correctamente';
                     mensajeValidacion.className = 'text-success fw-bold';
                 }
             } else {
@@ -315,32 +315,55 @@ class CargaMensualManager {
     // 🆕 MÉTODO NUEVO: Verificar cambios antes de cambiar de período
     verificarCambiosAntesDeCambiar() {
         if (this.hayCambiosSinGuardarEnFormularios()) {
-            const resultado = confirm('¿Deseas continuar sin guardar los cambios actuales?');
-            if (!resultado) {
-                return; // Usuario canceló
+            // Usar el modal externo
+            if (typeof modalCambios !== 'undefined') {
+                modalCambios.mostrar();
+                return false; // Detener la acción hasta que el usuario decida
+            } else {
+                // Fallback a confirm nativo
+                const resultado = confirm('¿Deseas continuar sin guardar los cambios actuales?');
+                if (!resultado) {
+                    return false; // Usuario canceló
+                }
             }
         }
+        return true; // Continuar si no hay cambios
     }
 
     hayCambiosSinGuardarEnFormularios() {
+        // Si no hay managers aún o sus contenedores no existen, asumir sin cambios
         if (!this.estadoResultadosManager || !this.balanceGeneralManager || !this.flujoOperativoManager || !this.flujoCorporativoManager) {
-            return false; // Los managers no están inicializados
+            return false;
         }
 
-        try {
-            const datosActuales = {
-                estadoResultados: this.estadoResultadosManager.getFormData(),
-                balanceGeneral: this.balanceGeneralManager.getFormData(),
-                flujoOperativo: this.flujoOperativoManager.getFormData(),
-                flujoCorporativo: this.flujoCorporativoManager.getFormData()
-            };
+        const safeGet = (mgr) => {
+            try {
+                return mgr && mgr.getFormData ? mgr.getFormData() : {};
+            } catch (_) {
+                return {};
+            }
+        };
 
-            // Comparación simple para detectar cambios
+        const datosActuales = {
+            estadoResultados: safeGet(this.estadoResultadosManager),
+            balanceGeneral: safeGet(this.balanceGeneralManager),
+            flujoOperativo: safeGet(this.flujoOperativoManager),
+            flujoCorporativo: safeGet(this.flujoCorporativoManager)
+        };
+
+        try {
             return JSON.stringify(datosActuales) !== JSON.stringify(this.datosOriginales || {});
         } catch (error) {
             console.error('Error al verificar cambios:', error);
             return false;
         }
+    }
+
+    // MÉTODO NUEVO: Actualizar indicador visual
+    actualizarIndicadorCambios() {
+        // El indicador fue eliminado del HTML, ya no se necesita
+        // El sistema ahora solo muestra el modal cuando hay cambios
+        return true;
     }
 
     limpiarTodosLosCampos() {
