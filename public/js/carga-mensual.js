@@ -20,6 +20,10 @@ class CargaMensualManager {
     }
 
     init() {
+        // Establecer año y mes actual dinámicamente
+        const fechaActual = new Date().toISOString().slice(0, 7);
+        this.periodoInput.value = fechaActual;
+        
         this.cargarEmpresas();
         this.setupEventListeners();
     }

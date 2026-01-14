@@ -137,6 +137,9 @@ class ConsolidacionManager {
             this.applySection(data.flujoOperativo, 'consolidado', 'fo_');
             this.applySection(data.flujoCorporativo, 'consolidado', 'fc_');
 
+            // Sincronizar campos calculados en SALDOS
+            this.sincronizarCamposCalculados();
+
             // Actualizar contador de empresas
             const countSpan = document.getElementById('empresas-count');
             if (countSpan) {
@@ -145,6 +148,44 @@ class ConsolidacionManager {
         } catch (error) {
             console.error('Error al generar consolidación:', error);
             alert(`Error: ${error.message}`);
+        }
+    }
+    
+    sincronizarCamposCalculados() {
+        console.log('🔄 Sincronizando campos calculados en SALDOS...');
+        
+        // Sincronizar Flujo Operativo
+        const foTotalIngresos = document.querySelector('[name="fo_total_ingresos_consolidado"]');
+        const foIngresosCalculado = document.querySelector('[name="fo_ingresos_calculado_consolidado"]');
+        
+        if (foTotalIngresos && foIngresosCalculado) {
+            foIngresosCalculado.value = foTotalIngresos.value;
+            console.log('✅ FO Ingresos sincronizado:', foTotalIngresos.value, '->', foIngresosCalculado.value);
+        }
+        
+        const foTotalEgresos = document.querySelector('[name="fo_total_egresos_consolidado"]');
+        const foEgresosCalculado = document.querySelector('[name="fo_egresos_calculado_consolidado"]');
+        
+        if (foTotalEgresos && foEgresosCalculado) {
+            foEgresosCalculado.value = foTotalEgresos.value;
+            console.log('✅ FO Egresos sincronizado:', foTotalEgresos.value, '->', foEgresosCalculado.value);
+        }
+        
+        // Sincronizar Flujo Corporativo
+        const fcTotalIngresos = document.querySelector('[name="fc_total_ingresos_consolidado"]');
+        const fcIngresosCalculado = document.querySelector('[name="fc_ingresos_calculado_consolidado"]');
+        
+        if (fcTotalIngresos && fcIngresosCalculado) {
+            fcIngresosCalculado.value = fcTotalIngresos.value;
+            console.log('✅ FC Ingresos sincronizado:', fcTotalIngresos.value, '->', fcIngresosCalculado.value);
+        }
+        
+        const fcTotalEgresos = document.querySelector('[name="fc_total_egresos_consolidado"]');
+        const fcEgresosCalculado = document.querySelector('[name="fc_egresos_calculado_consolidado"]');
+        
+        if (fcTotalEgresos && fcEgresosCalculado) {
+            fcEgresosCalculado.value = fcTotalEgresos.value;
+            console.log('✅ FC Egresos sincronizado:', fcTotalEgresos.value, '->', fcEgresosCalculado.value);
         }
     }
 }

@@ -98,18 +98,44 @@ class BalanceGeneralManager {
 
             if (response.ok && data) {
                 let camposCargados = 0;
-                Object.keys(data).forEach(key => {
-                    console.log('🔍 Buscando input:', `[name="${key}"]`);
-                    const input = this.container.querySelector(`[name="${key}"]`);
+                Object.keys(data).forEach(rawkey => {
+
+                    if (rawkey.startsWith('ID_')) return;
+
+                    // Mapeo explícito de nombres de campos
+                    const keyMap = {
+                        'DISPONIBLE': 'disponible',
+                        'EXIGIBLE': 'exigible',
+                        'REALIZABLE': 'realizable',
+                        'ACTIVO_FIJO_TANGIBLE': 'activo_fijo_tangible',
+                        'ACTIVO_DIFERIDO': 'activo_diferido',
+                        'OTROS_ACTIVOS': 'otros_activos',
+                        'PASIVO_CORRIENTE': 'pasivo_corriente',
+                        'PREVISION_BENEFICIOS_SOCIALES': 'prevision_beneficios_sociales',
+                        'OBLIGACIONES_BANCARIAS': 'obligaciones_bancarias',
+                        'INTERESES_POR_PAGAR': 'intereses_pagar',
+                        'PROCESOS_LEGALES': 'procesos_legales',
+                        'PATRIMONIO': 'patrimonio',
+                        'ACTIVO_CORRIENTE': 'activo_corriente',
+                        'ACTIVO_NO_CORRIENTE': 'activo_no_corriente',
+                        'TOTAL_ACTIVO': 'total_activo',
+                        'PASIVO_NO_CORRIENTE': 'pasivo_no_corriente',
+                        'TOTAL_PASIVO_PATRIMONIO': 'total_pasivo_patrimonio'
+                    };
+                    
+                    const inputName = keyMap[rawkey] || rawkey.toLowerCase();
+                    
+                    console.log('🔍 Buscando input:', `[name="${inputName}"]`);
+                    const input = this.container.querySelector(`[name="${inputName}"]`);
                     console.log('🔍 Input encontrado:', input);
                     console.log('🔍 Input value actual:', input ? input.value : 'NULL');
                     
                     if (input) {
-                        input.value = data[key] || 0;
+                        input.value = data[rawkey] || 0;
                         camposCargados++;
-                        console.log('🔍 Input actualizado:', key, '=', data[key] || 0);
+                        console.log('🔍 Input actualizado:', inputName, '=', data[rawkey] || 0);
                     } else {
-                        console.error('❌ Input NO encontrado para:', key);
+                        console.error('❌ Input NO encontrado para:', inputName, '(campo original:', rawkey, ')');
                     }
                 });
                 
@@ -173,10 +199,7 @@ class BalanceGeneralManager {
         return parseFloat(input?.value) || 0;
     }
 
-    getInputValueBG(name) {
-        const input = this.container.querySelector(`[name="${name}"]`);
-        return parseFloat(input?.value) || 0;
-    }
+
 
     setInputValue(name, value) {
         const input = this.container.querySelector(`[name="${name}"]`);
@@ -185,12 +208,7 @@ class BalanceGeneralManager {
         }
     }
 
-    setInputValueBG(name, value) {
-        const input = this.container.querySelector(`[name="${name}"]`);
-        if (input) {
-            input.value = value.toFixed(2);
-        }
-    }
+    
 
     setupEventListeners() {
         // Eventos adicionales si se necesitan

@@ -273,6 +273,28 @@
             });
         });
 
+        // Resaltar la sección actual en el sidebar
+        function highlightCurrentSection() {
+            const currentPath = window.location.pathname;
+            
+            // Quitar clase activa de todos los enlaces
+            document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Agregar clase activa al enlace correspondiente
+            const activeLink = document.querySelector(`.sidebar-nav-link[data-href="${currentPath}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Llamar a la función al cargar la página
+        highlightCurrentSection();
+
+        // También llamar cuando cambia la URL (para navegación con botón atrás/adelante)
+        window.addEventListener('popstate', highlightCurrentSection);
+
         // Cerrar menú al hacer clic en un enlace (móviles)
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function() {

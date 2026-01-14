@@ -85,20 +85,48 @@ class FlujoOperativoManager {
 
             if (response.ok && data) {
                 let camposCargados = 0;
-                Object.keys(data).forEach(key => {
-                    console.log('🔍 Buscando input:', `[name="${key}"]`);
-                    const input = this.container.querySelector(`[name="${key}"]`);
+                Object.keys(data).forEach(rawkey => {
+
+                    if (rawkey.startsWith('ID_')) return;
+
+                    // Mapeo explícito de nombres de campos
+                    const keyMap = {
+                        'VENTAS': 'ventas',
+                        'VENTAS_EXPORTACION': 'ventas_exportacion',
+                        'CARTERA': 'cartera',
+                        'TRANSPORTES_ING': 'transportes_ing',
+                        'OTROS_INGRESOS': 'otros_ingresos',
+                        'GASTOS_ADMINISTRATIVOS': 'gastos_administrativos',
+                        'GASTOS_COMERCIALES': 'gastos_comerciales',
+                        'GASTOS_PRODUCCION': 'gastos_produccion',
+                        'ENVIOS_CTA_CORP': 'envios_cta_corp',
+                        'IMPUESTOS': 'impuestos',
+                        'TRANSPORTES_EGR': 'transportes_egr',
+                        'CUENTAS_POR_PAGAR': 'cuentas_por_pagar',
+                        'INVERSIONES': 'inversiones',
+                        'OTROS_GASTOS': 'otros_gastos',
+                        'SALDO_ANTERIOR': 'saldo_anterior',
+                        'TOTAL_INGRESOS': 'fo_total_ingresos',
+                        'TOTAL_EGRESOS': 'fo_total_egresos',
+                        'SALDO_ACTUAL': 'fo_saldo_actual'
+                    };
+                    
+                    const inputName = keyMap[rawkey] || rawkey.toLowerCase();
+                    
+                    console.log('🔍 Buscando input:', `[name="${inputName}"]`);
+                    const input = this.container.querySelector(`[name="${inputName}"]`);
                     console.log('🔍 Input encontrado:', input);
                     console.log('🔍 Input value actual:', input ? input.value : 'NULL');
                     
                     if (input) {
-                        input.value = data[key] || 0;
+                        input.value = data[rawkey] || 0;
                         camposCargados++;
-                        console.log('🔍 Input actualizado:', key, '=', data[key] || 0);
+                        console.log('🔍 Input actualizado:', inputName, '=', data[rawkey] || 0);
                     } else {
-                        console.error('❌ Input NO encontrado para:', key);
+                        console.error('❌ Input NO encontrado para:', inputName, '(campo original:', rawkey, ')');
                     }
                 });
+                this.calcular();
                 
                 console.log(`✅ Flujo Operativo: ${camposCargados} campos cargados`);
                 return { success: true, camposCargados };

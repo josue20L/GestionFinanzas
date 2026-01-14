@@ -86,20 +86,51 @@ class FlujoCorporativoManager {
 
             if (response.ok && data) {
                 let camposCargados = 0;
-                Object.keys(data).forEach(key => {
-                    console.log('🔍 Buscando input:', `[name="${key}"]`);
-                    const input = this.container.querySelector(`[name="${key}"]`);
+                Object.keys(data).forEach(rawkey => {
+
+                    if (rawkey.startsWith('ID_')) return;
+
+                    // Mapeo explícito de nombres de campos
+                    const keyMap = {
+                        'TRANSFERENCIA_FONDOS': 'fc_transferencia_fondos',
+                        'DESEMBOLSOS_BANCARIOS': 'fc_desembolsos_bancarios',
+                        'OTROS_INGRESOS': 'fc_otros_ingresos',
+                        'PRESTAMOS_BANCARIOS': 'fc_prestamos_bancarios',
+                        'INVERSIONES': 'fc_inversiones',
+                        'RPR_CONSULTORES': 'fc_rpr_consultores',
+                        'BONOS_PLRS': 'fc_bonos_plrs',
+                        'DIVIDENDOS_PAGAR': 'fc_dividendos_pagar',
+                        'CUENTAS_PAGAR': 'fc_cuentas_pagar',
+                        'AGUINALDOS': 'fc_aguinaldos',
+                        'FINIQUITOS': 'fc_finiquitos',
+                        'PRIMAS': 'fc_primas',
+                        'RETROACTIVOS': 'fc_retroactivos',
+                        'IUE': 'fc_iue',
+                        'OTROS_GASTOS': 'fc_otros_gastos',
+                        'SALDO_ANTERIOR': 'fc_saldo_anterior',
+                        'TOTAL_INGRESOS': 'fc_total_ingresos',
+                        'TOTAL_EGRESOS': 'fc_total_egresos',
+                        'SALDO_ACTUAL': 'fc_saldo_actual'
+                    };
+                    
+                    const inputName = keyMap[rawkey] || rawkey.toLowerCase();
+                    
+                    console.log('🔍 Buscando input:', `[name="${inputName}"]`);
+                    const input = this.container.querySelector(`[name="${inputName}"]`);
                     console.log('🔍 Input encontrado:', input);
                     console.log('🔍 Input value actual:', input ? input.value : 'NULL');
                     
                     if (input) {
-                        input.value = data[key] || 0;
+                        input.value = data[rawkey] || 0;
                         camposCargados++;
-                        console.log('🔍 Input actualizado:', key, '=', data[key] || 0);
+                        console.log('🔍 Input actualizado:', inputName, '=', data[rawkey] || 0);
                     } else {
-                        console.error('❌ Input NO encontrado para:', key);
+                        console.error('❌ Input NO encontrado para:', inputName, '(campo original:', rawkey, ')');
                     }
                 });
+                
+                // Llamar a calcular() para llenar campos calculados automáticamente
+                this.calcular();
                 
                 console.log(`✅ Flujo Corporativo: ${camposCargados} campos cargados`);
                 return { success: true, camposCargados };
