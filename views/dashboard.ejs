@@ -1,0 +1,241 @@
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Dashboard Financiero</h2>
+    </div>
+</div>
+
+<!-- Tarjetas de Resumen -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Empresas</h4>
+                        <p class="card-text display-4" id="totalEmpresas">0</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-building display-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Períodos</h4>
+                        <p class="card-text display-4" id="totalPeriodos">0</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar3 display-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Usuarios</h4>
+                        <p class="card-text display-4" id="totalUsuarios">0</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people display-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Mes Actual</h4>
+                        <p class="card-text" id="mesActual">-</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-date display-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos Rápidos -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h4 class="mb-3">Accesos Rápidos</h4>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-building-add display-4 text-primary mb-3"></i>
+                        <h5>Gestión de Empresas</h5>
+                        <p class="text-muted">Administrar empresas y configuraciones</p>
+                        <a href="/empresas" class="btn btn-primary">Ir</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark-text display-4 text-success mb-3"></i>
+                        <h5>Carga Mensual</h5>
+                        <p class="text-muted">Ingresar datos financieros mensuales</p>
+                        <a href="/carga-mensual" class="btn btn-success">Ir</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-layers display-4 text-info mb-3"></i>
+                        <h5>Consolidación</h5>
+                        <p class="text-muted">Consolidar datos de múltiples empresas</p>
+                        <a href="/consolidacion" class="btn btn-info">Ir</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-graph-up display-4 text-warning mb-3"></i>
+                        <h5>Reportes</h5>
+                        <p class="text-muted">Generar reportes financieros</p>
+                        <a href="/reportes" class="btn btn-warning">Ir</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actividad Reciente -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Empresas Recientes</h5>
+            </div>
+            <div class="card-body">
+                <div id="recentCompanies" class="row">
+                    <!-- Las empresas recientes se cargarán aquí -->
+                    <div class="col-12 text-center py-4">
+                        <p class="text-muted">Cargando empresas...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="bi bi-person-circle text-primary"></i>
+                        <strong>Usuario:</strong> <span id="currentUser"><%= user ? user.nombre_usuario : 'Invitado' %></span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-shield-check text-success"></i>
+                        <strong>Rol:</strong> <span id="userRole"><%= user && user.isAdmin ? 'Administrador' : 'Usuario' %></span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-database text-info"></i>
+                        <strong>Base de Datos:</strong> <span>Conectada</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-clock text-warning"></i>
+                        <strong>Último Acceso:</strong> <span id="lastLogin">Ahora</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Cargar datos del dashboard
+async function loadDashboardData() {
+    try {
+        // Cargar empresas
+        const companiesResponse = await fetch('/api/empresas');
+        const companies = await companiesResponse.json();
+        
+        // Actualizar contador de empresas
+        document.getElementById('totalEmpresas').textContent = companies.length || 0;
+        
+        // Mostrar empresas recientes (máximo 6)
+        const recentCompanies = companies.slice(0, 6);
+        const recentCompaniesHtml = recentCompanies.map(company => `
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">${company.NOMBRE_EMPRESA}</h6>
+                        <p class="card-text text-muted small">
+                            <i class="bi bi-geo-alt"></i> ${company.PAIS}<br>
+                            <i class="bi bi-tag"></i> ${company.NOMBRE_MONEDA}
+                        </p>
+                        <a href="/empresas/${company.ID_EMPRESA}" class="btn btn-sm btn-outline-primary">Ver</a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        document.getElementById('recentCompanies').innerHTML = recentCompaniesHtml || '<div class="col-12 text-center py-4"><p class="text-muted">No hay empresas registradas</p></div>';
+        
+        // Cargar períodos
+        try {
+            const periodsResponse = await fetch('/api/periodos');
+            const periods = await periodsResponse.json();
+            document.getElementById('totalPeriodos').textContent = periods.length || 0;
+        } catch (error) {
+            console.error('Error cargando períodos:', error);
+            document.getElementById('totalPeriodos').textContent = '0';
+        }
+        
+        // Cargar usuarios
+        try {
+            const usersResponse = await fetch('/usuarios');
+            const usersText = await usersResponse.text();
+            // Extraer número de usuarios del HTML (esto es una aproximación)
+            const userCount = (usersText.match(/<tr>/g) || []).length;
+            document.getElementById('totalUsuarios').textContent = userCount;
+        } catch (error) {
+            console.error('Error cargando usuarios:', error);
+            document.getElementById('totalUsuarios').textContent = '0';
+        }
+        
+        // Establecer mes actual
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const fechaActual = new Date();
+        document.getElementById('mesActual').textContent = `${meses[fechaActual.getMonth()]} ${fechaActual.getFullYear()}`;
+        
+    } catch (error) {
+        console.error('Error cargando dashboard:', error);
+        document.getElementById('totalEmpresas').textContent = 'Error';
+        document.getElementById('totalPeriodos').textContent = 'Error';
+        document.getElementById('totalUsuarios').textContent = 'Error';
+    }
+}
+
+// Cargar datos cuando la página esté lista
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>

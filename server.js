@@ -72,10 +72,8 @@ app.get('/', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
   }
-  res.render('index', { 
-    title: 'Gestor Financiero INCERCO',
-    user: req.session.user 
-  });
+  // Redirigir al dashboard real
+  return res.redirect('/dashboard');
 });
 
 // Ruta de ejemplo protegida (dashboard)
