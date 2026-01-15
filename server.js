@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mysql = require('mysql2');
 const expressLayouts = require('express-ejs-layouts');
+const { requireAuth } = require('./src/middleware/auth');
 
 const app = express();
 
@@ -68,17 +69,17 @@ db.getConnection((err, connection) => {
 
 // Página principal (dashboard o index)
 app.get('/', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
   res.render('index', { 
     title: 'Gestor Financiero INCERCO',
-    user: req.session.user || { username: 'Invitado' }
+    user: req.session.user 
   });
 });
 
 // Ruta de ejemplo protegida (dashboard)
-app.get('/dashboard', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/');
-  }
+app.get('/dashboard', requireAuth, (req, res) => {
   res.render('dashboard', { 
     title: 'Dashboard',
     user: req.session.user 
@@ -86,10 +87,46 @@ app.get('/dashboard', (req, res) => {
 });
 
 // Ruta de ejemplo para empresas
-app.get('/empresas', (req, res) => {
+app.get('/empresas', requireAuth, (req, res) => {
   res.render('empresas/empresa', { 
     title: 'Empresas',
     user: req.session.user 
+  });
+});
+
+// Ruta de Consolidación
+app.get('/consolidacion', (req, res) => {
+  res.render('consolidacion/consolidacion', { 
+    title: 'Consolidación',
+    user: { 
+      nombre_usuario: 'Demo', 
+      email_usuario: 'demo@demo.com',
+      isAdmin: true 
+    }
+  });
+});
+
+// Ruta de Reportes
+app.get('/reportes', (req, res) => {
+  res.render('reportes/reportes', { 
+    title: 'Reportes',
+    user: { 
+      nombre_usuario: 'Demo', 
+      email_usuario: 'demo@demo.com',
+      isAdmin: true 
+    }
+  });
+});
+
+// Ruta de Carga Mensual
+app.get('/carga-mensual', (req, res) => {
+  res.render('estados-financieros/carga-mensual', { 
+    title: 'Carga Mensual',
+    user: { 
+      nombre_usuario: 'Demo', 
+      email_usuario: 'demo@demo.com',
+      isAdmin: true 
+    }
   });
 });
 
@@ -102,6 +139,8 @@ const flujoOperativoRoutes = require('./src/routes/flujoOperativo');
 const flujoCorporativoRoutes = require('./src/routes/flujoCorporativo');
 const consolidacionRoutes = require('./src/routes/consolidacion');
 const empresasViewsRoutes = require('./src/routes/empresasViews');
+const authRoutes = require('./src/routes/auth');
+const usuariosRoutes = require('./src/routes/usuarios');
 
 app.use('/api', empresasRoutes);
 app.use('/api', periodosRoutes);
@@ -112,11 +151,19 @@ app.use('/api', flujoCorporativoRoutes);
 app.use('/api', consolidacionRoutes);
 app.use('/empresas', empresasViewsRoutes);
 
+// Auth + Usuarios (solo admin)
+app.use('/', authRoutes);
+app.use('/usuarios', usuariosRoutes);
+
 // Ruta de Consolidación
 app.get('/consolidacion', (req, res) => {
   res.render('consolidacion/consolidacion', { 
     title: 'Consolidación',
-    user: req.session.user 
+    user: { 
+      nombre_usuario: 'Demo', 
+      email_usuario: 'demo@demo.com',
+      isAdmin: true 
+    }
   });
 });
 
@@ -124,7 +171,11 @@ app.get('/consolidacion', (req, res) => {
 app.get('/reportes', (req, res) => {
   res.render('reportes/reportes', { 
     title: 'Reportes',
-    user: req.session.user 
+    user: { 
+      nombre_usuario: 'Demo', 
+      email_usuario: 'demo@demo.com',
+      isAdmin: true 
+    }
   });
 });
 
@@ -132,15 +183,11 @@ app.get('/reportes', (req, res) => {
 app.get('/carga-mensual', (req, res) => {
   res.render('estados-financieros/carga-mensual', { 
     title: 'Carga Mensual',
-    user: req.session.user 
-  });
-});
-
-// Ruta de logout (cuando agregues login)
-app.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) console.error('Error al cerrar sesión:', err);
-    res.redirect('/');
+    user: { 
+      nombre_usuario: 'Demo', 
+      email_usuario: 'demo@demo.com',
+      isAdmin: true 
+    }
   });
 });
 

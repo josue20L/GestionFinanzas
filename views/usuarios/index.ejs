@@ -1,0 +1,58 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Usuarios</h2>
+    <a class="btn btn-primary" href="/usuarios/nuevo">Nuevo Usuario</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Activo</th>
+                        <th>Accesos</th>
+                        <th style="width: 180px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (!usuarios || !usuarios.length) { %>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No hay usuarios</td>
+                        </tr>
+                    <% } %>
+
+                    <% (usuarios || []).forEach(({ user, accesos }) => { %>
+                        <tr>
+                            <td><%= user.NOMBRE_USUARIO %></td>
+                            <td><%= user.EMAIL_USUARIO %></td>
+                            <td>
+                                <% if (user.ACTIVO) { %>
+                                    <span class="badge bg-success">Sí</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary">No</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (accesos && accesos.length) { %>
+                                    <% accesos.forEach(a => { %>
+                                        <div class="small"><strong><%= a.NOMBRE_EMPRESA %></strong> - <%= a.NOMBRE_ROL %></div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <span class="text-muted small">Sin accesos</span>
+                                <% } %>
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="/usuarios/<%= user.ID_USUARIO %>/editar">Editar</a>
+                                <form method="POST" action="/usuarios/<%= user.ID_USUARIO %>/eliminar" style="display:inline;" onsubmit="return confirm('¿Eliminar usuario?');">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

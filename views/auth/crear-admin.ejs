@@ -1,0 +1,58 @@
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">Crear Administrador</h5>
+            </div>
+            <div class="card-body">
+                <% if (error) { %>
+                    <div class="alert alert-danger" role="alert"><%= error %></div>
+                <% } %>
+
+                <form method="POST" action="/crear-admin">
+                    <div class="mb-3">
+                        <label class="form-label" for="nombre_usuario">Nombre</label>
+                        <input class="form-control" id="nombre_usuario" name="nombre_usuario" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="email_usuario">Email</label>
+                        <input class="form-control" type="email" id="email_usuario" name="email_usuario" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Contraseña</label>
+                        <input class="form-control" type="password" id="password" name="password" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_empresa">Empresa (opcional)</label>
+                        <select class="form-select" id="id_empresa" name="id_empresa">
+                            <option value="">Sin empresa</option>
+                            <% (empresas || []).forEach(e => { %>
+                                <option value="<%= e.ID_EMPRESA %>"><%= e.NOMBRE_EMPRESA %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_rol">Rol</label>
+                        <select class="form-select" id="id_rol" name="id_rol" required>
+                            <option value="">Seleccionar rol...</option>
+                            <% (roles || []).forEach(r => { %>
+                                <option value="<%= r.ID_ROL %>"><%= r.NOMBRE_ROL %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" id="activo" name="activo" checked>
+                        <label class="form-check-label" for="activo">Usuario Activo</label>
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit">Crear Administrador</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

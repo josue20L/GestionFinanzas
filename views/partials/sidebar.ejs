@@ -39,6 +39,14 @@
                 <span>Reportes</span>
             </a>
         </li>
+        <% if (user && user.isAdmin) { %>
+            <li class="nav-item mb-2">
+                <a href="/usuarios" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/usuarios">
+                    <i class="bi bi-people-fill me-3"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+        <% } %>
         <li class="nav-item mb-2">
             <a href="/configuracion" class="nav-link text-white py-2 px-3 rounded-3 sidebar-nav-link" data-href="/configuracion">
                 <i class="bi bi-gear-fill me-3"></i>
@@ -60,7 +68,7 @@
         <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle fs-4 me-2"></i>
-                <span>Usuario</span>
+                <span><%= (user && (user.nombre_usuario || user.email_usuario)) ? (user.nombre_usuario || user.email_usuario) : 'Usuario' %></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
                 <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>

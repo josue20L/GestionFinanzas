@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><%= mode === 'edit' ? 'Editar Usuario' : 'Nuevo Usuario' %></h2>
+    <a class="btn btn-outline-secondary" href="/usuarios">Volver</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <% if (error) { %>
+            <div class="alert alert-danger" role="alert"><%= error %></div>
+        <% } %>
+
+        <form method="POST" action="<%= mode === 'edit' ? ('/usuarios/' + usuario.ID_USUARIO) : '/usuarios' %>">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="nombre_usuario">Nombre</label>
+                    <input class="form-control" id="nombre_usuario" name="nombre_usuario" required value="<%= usuario ? usuario.NOMBRE_USUARIO : '' %>">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="email_usuario">Email</label>
+                    <input class="form-control" type="email" id="email_usuario" name="email_usuario" required value="<%= usuario ? usuario.EMAIL_USUARIO : '' %>">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="password">Contraseña <span class="text-muted">(opcional al editar)</span></label>
+                    <input class="form-control" type="password" id="password" name="password" <%= mode === 'create' ? 'required' : '' %> >
+                </div>
+
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="activo" name="activo" <%= (!usuario || usuario.ACTIVO) ? 'checked' : '' %> >
+                        <label class="form-check-label" for="activo">Activo</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="id_empresa">Empresa</label>
+                    <select class="form-select" id="id_empresa" name="id_empresa">
+                        <option value="">Sin empresa</option>
+                        <% (empresas || []).forEach(e => { %>
+                            <option value="<%= e.ID_EMPRESA %>" <%= (acceso && Number(acceso.ID_EMPRESA) === Number(e.ID_EMPRESA)) ? 'selected' : '' %>><%= e.NOMBRE_EMPRESA %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="id_rol">Rol</label>
+                    <select class="form-select" id="id_rol" name="id_rol">
+                        <option value="">Sin rol</option>
+                        <% (roles || []).forEach(r => { %>
+                            <option value="<%= r.ID_ROL %>" <%= (acceso && Number(acceso.ID_ROL) === Number(r.ID_ROL)) ? 'selected' : '' %>><%= r.NOMBRE_ROL %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end gap-2">
+                <a class="btn btn-secondary" href="/usuarios">Cancelar</a>
+                <button class="btn btn-primary" type="submit">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
