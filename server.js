@@ -1,8 +1,8 @@
 // server.js
 require('dotenv').config();
+const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');
-const bodyParser = require('body-parser');
 const path = require('path');
 const mysql = require('mysql2');
 const expressLayouts = require('express-ejs-layouts');
@@ -92,6 +92,14 @@ app.get('/empresas', requireAuth, (req, res) => {
   });
 });
 
+// Ruta para gestión de monedas
+app.get('/monedas', requireAuth, (req, res) => {
+  res.render('monedas/index', { 
+    title: 'Gestión de Monedas',
+    user: req.session.user 
+  });
+});
+
 // Ruta de Consolidación
 app.get('/consolidacion', (req, res) => {
   res.render('consolidacion/consolidacion', { 
@@ -137,10 +145,12 @@ const flujoOperativoRoutes = require('./src/routes/flujoOperativo');
 const flujoCorporativoRoutes = require('./src/routes/flujoCorporativo');
 const consolidacionRoutes = require('./src/routes/consolidacion');
 const empresasViewsRoutes = require('./src/routes/empresasViews');
+const monedasRoutes = require('./src/routes/monedas');
 const authRoutes = require('./src/routes/auth');
 const usuariosRoutes = require('./src/routes/usuarios');
 
 app.use('/api', empresasRoutes);
+app.use('/api/monedas', monedasRoutes);
 app.use('/api', periodosRoutes);
 app.use('/api', estadoResultadosRoutes);
 app.use('/api', balanceGeneralRoutes);
@@ -152,42 +162,6 @@ app.use('/empresas', empresasViewsRoutes);
 // Auth + Usuarios (solo admin)
 app.use('/', authRoutes);
 app.use('/usuarios', usuariosRoutes);
-
-// Ruta de Consolidación
-app.get('/consolidacion', (req, res) => {
-  res.render('consolidacion/consolidacion', { 
-    title: 'Consolidación',
-    user: { 
-      nombre_usuario: 'Demo', 
-      email_usuario: 'demo@demo.com',
-      isAdmin: true 
-    }
-  });
-});
-
-// Ruta de Reportes
-app.get('/reportes', (req, res) => {
-  res.render('reportes/reportes', { 
-    title: 'Reportes',
-    user: { 
-      nombre_usuario: 'Demo', 
-      email_usuario: 'demo@demo.com',
-      isAdmin: true 
-    }
-  });
-});
-
-// Ruta de Carga Mensual
-app.get('/carga-mensual', (req, res) => {
-  res.render('estados-financieros/carga-mensual', { 
-    title: 'Carga Mensual',
-    user: { 
-      nombre_usuario: 'Demo', 
-      email_usuario: 'demo@demo.com',
-      isAdmin: true 
-    }
-  });
-});
 
 // ====================
 // MANEJO DE ERRORES

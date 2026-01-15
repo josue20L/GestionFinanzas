@@ -14,9 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Mostrar/ocultar sidebar en móviles
-        document.querySelector('[data-bs-target="#sidebar"]').addEventListener('click', function() {
-            sidebarInstance.toggle();
-        });
+        const sidebarToggle = document.querySelector('[data-bs-target="#sidebar"]');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebarInstance.toggle();
+            });
+        }
 
         // Cerrar sidebar al hacer clic en un enlace en móviles
         if (window.innerWidth < 768) {

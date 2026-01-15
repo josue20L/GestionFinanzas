@@ -1,0 +1,95 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestión de Monedas</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalMoneda">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Moneda
+                </button>
+            </div>
+
+            <!-- Tabla de Monedas -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="tablaMonedas">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Símbolo</th>
+                                    <th>Código ISO</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Las monedas se cargarán aquí con JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Moneda -->
+<div class="modal fade" id="modalMoneda" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMonedaTitle">Nueva Moneda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formMoneda">
+                    <input type="hidden" id="monedaId">
+                    
+                    <div class="mb-3">
+                        <label for="nombre_moneda" class="form-label">Nombre de la Moneda</label>
+                        <input type="text" class="form-control" id="nombre_moneda" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="simbolo" class="form-label">Símbolo</label>
+                        <input type="text" class="form-control" id="simbolo" required maxlength="5">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="codigo_iso" class="form-label">Código ISO</label>
+                        <input type="text" class="form-control" id="codigo_iso" required maxlength="3" style="text-transform: uppercase;">
+                        <div class="form-text">Ej: USD, EUR, BOB</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarMoneda">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar la moneda <strong id="monedaEliminarNombre"></strong>?</p>
+                <p class="text-danger">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/monedas.js"></script>
