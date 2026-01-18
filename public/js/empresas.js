@@ -11,7 +11,9 @@ class EmpresasManager {
 
     async cargarEmpresas() {
         try {
-            const response = await fetch('/api/empresas');
+            const response = await fetch('/api/empresas', {
+                credentials: 'same-origin'
+            });
             const empresas = await response.json();
             
             const grid = document.getElementById('companiesGrid');
@@ -35,13 +37,17 @@ class EmpresasManager {
     }
 
     async renderCard(empresa) {
-        const response = await fetch(`/empresas/card/${empresa.ID_EMPRESA}`);
+        const response = await fetch(`/empresas/card/${empresa.ID_EMPRESA}`, {
+            credentials: 'same-origin'
+        });
         return await response.text();
     }
 
     async cargarGruposEmpresariales() {
         try {
-            const response = await fetch('/api/grupos-empresariales');
+            const response = await fetch('/api/grupos-empresariales', {
+                credentials: 'same-origin'
+            });
             const grupos = await response.json();
             
             const select = document.getElementById('Tipo-empresa');
@@ -61,18 +67,27 @@ class EmpresasManager {
 
     async cargarMonedas() {
         try {
-            const response = await fetch('/api/monedas');
+            const response = await fetch('/api/monedas', {
+                credentials: 'same-origin'
+            });
             const monedas = await response.json();
             
             const select = document.getElementById('moneda');
+            if (!select) {
+                console.error('No se encontró el select con id="moneda"');
+                return;
+            }
+            
             select.innerHTML = '<option value="">Seleccionar moneda...</option>';
             
-            monedas.forEach(moneda => {
-                const option = document.createElement('option');
-                option.value = moneda.ID_MONEDA;
-                option.textContent = `${moneda.NOMBRE_MONEDA} (${moneda.SIMBOLO})`;
-                select.appendChild(option);
-            });
+            if (monedas.success && monedas.data) {
+                monedas.data.forEach(moneda => {
+                    const option = document.createElement('option');
+                    option.value = moneda.ID_MONEDA;
+                    option.textContent = `${moneda.NOMBRE_MONEDA} (${moneda.SIMBOLO})`;
+                    select.appendChild(option);
+                });
+            }
         } catch (error) {
             console.error('Error al cargar monedas:', error);
             this.showToast('Error al cargar monedas', 'danger');
@@ -102,7 +117,9 @@ class EmpresasManager {
 
     async editarEmpresa(idEmpresa) {
         try {
-            const response = await fetch(`/api/empresas/${idEmpresa}`);
+            const response = await fetch(`/api/empresas/${idEmpresa}`, {
+                credentials: 'same-origin'
+            });
             if (!response.ok) {
                 this.showToast('No se pudo cargar la empresa para edición', 'danger');
                 return;
@@ -140,7 +157,8 @@ class EmpresasManager {
 
         try {
             const response = await fetch(`/api/empresas/${idEmpresa}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'same-origin'
             });
             const result = await response.json();
 
@@ -200,6 +218,7 @@ class EmpresasManager {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify(payload)
             });
 
@@ -266,10 +285,12 @@ class EmpresasManager {
 // Funciones globales para onclick
 let empresasManager;
 
-function openCompanyModal() {
+async function openCompanyModal() {
     empresasManager.limpiarFormulario();
-    empresasManager.cargarGruposEmpresariales();
-    empresasManager.cargarMonedas();
+    await Promise.all([
+        empresasManager.cargarGruposEmpresariales(),
+        empresasManager.cargarMonedas()
+    ]);
     const modal = new bootstrap.Modal(document.getElementById('nuevaEmpresaModal'));
     modal.show();
 }

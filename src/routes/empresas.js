@@ -11,6 +11,5 @@ router.delete('/empresas/:id', empresaController.eliminarEmpresa);
 
 // Rutas adicionales
 router.get('/grupos-empresariales', empresaController.obtenerGruposEmpresariales);
-router.get('/monedas', empresaController.obtenerMonedas);
 
 module.exports = router;
