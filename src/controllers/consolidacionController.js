@@ -1,8 +1,6 @@
-const EstadoResultado = require('../models/EstadoResultado');
-const BalanceGeneral = require('../models/BalanceGeneral');
-const FlujoOperativo = require('../models/FlujoOperativo');
-const FlujoCorporativo = require('../models/FlujoCorporativo');
+const ConsolidacionService = require('./consolidacion/consolidacionService');
 
+// Helper functions (se mantienen aquí por ahora)
 function parsePeriodo(periodo) {
     if (typeof periodo !== 'string') return null;
     const [anioStr, mesStr] = periodo.split('-');
@@ -33,37 +31,9 @@ function buildMonthRange(desde, hasta) {
     return { start, end, months };
 }
 
-function sumRows(rows) {
-    const totals = {};
-    if (!Array.isArray(rows)) return totals;
-
-    for (const row of rows) {
-        if (!row) continue;
-        for (const [key, value] of Object.entries(row)) {
-            if (
-                key.startsWith('ID_') ||
-                key === 'NOMBRE_EMPRESA' ||
-                key === 'ID_EMPRESA' ||
-                key === 'ANO' ||
-                key === 'MES' ||
-                key === 'periodo'
-            ) {
-                continue;
-            }
-
-            const n = Number(value);
-            if (Number.isFinite(n)) {
-                totals[key] = (totals[key] || 0) + n;
-            }
-        }
-    }
-
-    return totals;
-}
-
 const consolidar = async (req, res) => {
     try {
-        const { empresas, desde, hasta } = req.body || {};
+        const { empresas, desde, hasta, tipo = 'mensual' } = req.body;
 
         if (!Array.isArray(empresas) || empresas.length === 0) {
             return res.status(400).json({ success: false, message: 'Debe seleccionar al menos una empresa' });
@@ -79,42 +49,20 @@ const consolidar = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Rango de fechas inválido. Use formato YYYY-MM' });
         }
 
-        const erRows = [];
-        const foRows = [];
-        const fcRows = [];
-
-        for (const { anio, mes } of range.months) {
-            const [er, fo, fc] = await Promise.all([
-                EstadoResultado.getForConsolidacion(empresasIds, anio, mes),
-                FlujoOperativo.getForConsolidacion(empresasIds, anio, mes),
-                FlujoCorporativo.getForConsolidacion(empresasIds, anio, mes)
-            ]);
-            if (Array.isArray(er)) erRows.push(...er);
-            if (Array.isArray(fo)) foRows.push(...fo);
-            if (Array.isArray(fc)) fcRows.push(...fc);
-        }
-
-        const bgRows = await BalanceGeneral.getForConsolidacion(empresasIds, range.end.anio, range.end.mes);
-
-        const estadoResultados = sumRows(erRows);
-        const flujoOperativo = sumRows(foRows);
-        const flujoCorporativo = sumRows(fcRows);
-        const balanceGeneral = sumRows(bgRows);
+        // Usar el servicio de consolidación
+        const consolidacionService = new ConsolidacionService();
+        const datosConsolidados = await consolidacionService.consolidar(empresasIds, range, tipo);
 
         return res.json({
             success: true,
             periodo: { desde, hasta },
             empresas: empresasIds,
+            tipo: tipo,
             meta: {
                 empresasCount: empresasIds.length,
-                mesesCount: range.months.length
+                periodosCount: datosConsolidados.datosPorPeriodo.periodos.length
             },
-            data: {
-                estadoResultados,
-                balanceGeneral,
-                flujoOperativo,
-                flujoCorporativo
-            }
+            data: datosConsolidados
         });
     } catch (error) {
         console.error('Error en consolidación:', error);

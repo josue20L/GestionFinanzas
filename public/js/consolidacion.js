@@ -1,16 +1,30 @@
 class ConsolidacionManager {
     constructor() {
-        this.desdeInput = document.getElementById('desde-select');
-        this.hastaInput = document.getElementById('hasta-select');
-        this.empresasContainer = document.getElementById('empresas-checklist');
+        this.tipoPeriodoSelect = document.getElementById('tipo-periodo');
         this.btnGenerar = document.getElementById('btn-generar-consolidacion');
+        this.empresasContainer = document.getElementById('empresas-checklist');
+        this.desdeContainer = document.getElementById('desde-container');
+        this.hastaContainer = document.getElementById('hasta-container');
+        this.infoDiv = document.getElementById('info-periodo');
+        this.infoTexto = document.getElementById('texto-info-periodo');
+
+        this.apiService = new window.ApiService();
+        this.periodConverter = new window.PeriodConverter();
+        this.uiManager = new window.UiManager({
+            tipoPeriodoSelect: this.tipoPeriodoSelect,
+            desdeContainer: this.desdeContainer,
+            hastaContainer: this.hastaContainer,
+            infoDiv: this.infoDiv,
+            infoTexto: this.infoTexto,
+            empresasContainer: this.empresasContainer
+        });
 
         this.init();
     }
 
     async init() {
-        // Limpiar posibles valores mock iniciales en los formularios
-        this.limpiarFormulariosConsolidados();
+        this.uiManager.limpiarFormulariosConsolidados();
+        this.uiManager.initPeriodoUI();
         await this.cargarEmpresas();
         this.setupEvents();
     }
@@ -22,170 +36,103 @@ class ConsolidacionManager {
     }
 
     async cargarEmpresas() {
-        if (!this.empresasContainer) return;
-
         try {
             console.log('🔄 Cargando empresas desde API...');
-            const response = await fetch('/api/empresas');
-            const empresas = await response.json();
-            
+            const empresas = await this.apiService.fetchEmpresas();
             console.log('✅ Empresas recibidas:', empresas);
-            console.log('📊 Total empresas:', empresas.length);
-
-            this.empresasContainer.innerHTML = '';
-
-            if (!Array.isArray(empresas) || empresas.length === 0) {
-                this.empresasContainer.innerHTML = '<div class="text-muted">No hay empresas registradas</div>';
-                return;
-            }
-
-            for (const empresa of empresas) {
-                const id = empresa.ID_EMPRESA;
-                const nombre = empresa.NOMBRE_EMPRESA || 'Sin nombre';
-
-                console.log(`🏢 Creando checkbox para empresa: ${nombre} (ID: ${id})`);
-
-                const wrapper = document.createElement('div');
-                wrapper.className = 'form-check';
-
-                const input = document.createElement('input');
-                input.className = 'form-check-input empresa-check';
-                input.type = 'checkbox';
-                input.id = `empresa-${id}`;
-                input.value = id;
-
-                const label = document.createElement('label');
-                label.className = 'form-check-label';
-                label.htmlFor = input.id;
-                label.textContent = nombre;
-
-                wrapper.appendChild(input);
-                wrapper.appendChild(label);
-                this.empresasContainer.appendChild(wrapper);
-            }
-
-            console.log('✅ Checkboxes de empresas creados:', empresas.length);
+            this.uiManager.renderEmpresas(empresas);
         } catch (error) {
             console.error('❌ Error al cargar empresas en consolidación:', error);
-            this.empresasContainer.innerHTML = '<div class="text-danger">Error al cargar empresas</div>';
+            this.uiManager.renderEmpresasError();
         }
     }
 
-    getEmpresasSeleccionadas() {
-        if (!this.empresasContainer) return [];
-        return Array.from(this.empresasContainer.querySelectorAll('.empresa-check:checked'))
-            .map((x) => Number(x.value))
-            .filter((x) => Number.isInteger(x));
-    }
+    obtenerRango(tipoPeriodo) {
+        let desde;
+        let hasta;
 
-    setInputValue(name, value) {
-        const input = document.querySelector(`[name="${name}"]`);
-        if (!input) return;
-        const n = Number(value);
-        input.value = Number.isFinite(n) ? n.toFixed(2) : '0.00';
-    }
+        switch (tipoPeriodo) {
+            case 'mensual':
+                desde = document.getElementById('desde-select')?.value;
+                hasta = document.getElementById('hasta-select')?.value;
+                break;
+            case 'trimestral':
+                desde = document.querySelector('input[type="month"][id*="trimestre-desde"]')?.value;
+                hasta = document.querySelector('input[type="month"][id*="trimestre-hasta"]')?.value;
+                break;
+            case 'anual-fiscal':
+                const anioDesde = document.querySelector('input[type="number"][id*="anio-desde"]')?.value;
+                const anioHasta = document.querySelector('input[type="number"][id*="anio-hasta"]')?.value;
+                desde = this.periodConverter.convertirAnioFiscalAMes(anioDesde);
+                hasta = this.periodConverter.convertirAnioFiscalAMes(anioHasta, true);
+                break;
+        }
 
-    limpiarFormulariosConsolidados() {
-        // Vacía todos los inputs que terminan en _consolidado para quitar mocks del HTML
-        const inputs = document.querySelectorAll('input[name$="_consolidado"]');
-        inputs.forEach(inp => {
-            inp.value = '';
-        });
-    }
-
-    applySection(sectionData, suffix, prefix = '') {
-        if (!sectionData || typeof sectionData !== 'object') return;
-
-        Object.entries(sectionData).forEach(([rawKey, val]) => {
-            if (rawKey.startsWith('ID_')) return;
-            const inputName = `${prefix}${rawKey.toLowerCase()}_${suffix}`;
-            this.setInputValue(inputName, val);
-        });
+        return { desde, hasta };
     }
 
     async generarReporte() {
-        const empresas = this.getEmpresasSeleccionadas();
-        const desde = this.desdeInput?.value;
-        const hasta = this.hastaInput?.value;
+        const empresas = this.uiManager.getEmpresasSeleccionadas();
+        const tipoPeriodo = this.tipoPeriodoSelect?.value || 'mensual';
+        const { desde, hasta } = this.obtenerRango(tipoPeriodo);
 
-        if (!empresas.length) {
+        console.log('🔍 Parámetros de consolidación:', { empresas, tipoPeriodo, desde, hasta });
+
+        if (typeof window.validarEmpresas === 'function') {
+            if (!window.validarEmpresas(empresas)) {
+                alert('Seleccione al menos una empresa.');
+                return;
+            }
+        } else if (!empresas.length) {
             alert('Seleccione al menos una empresa.');
             return;
         }
-        if (!desde || !hasta) {
-            alert('Seleccione rango de fechas (desde/hasta).');
+
+        if (typeof window.validarRangoFechas === 'function') {
+            if (!window.validarRangoFechas(desde, hasta)) {
+                alert('Seleccione rango de fechas.');
+                return;
+            }
+        } else if (!desde || !hasta) {
+            alert('Seleccione rango de fechas.');
             return;
         }
 
         try {
-            const response = await fetch('/api/consolidacion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ empresas, desde, hasta })
+            const result = await this.apiService.generarConsolidacion({
+                empresas,
+                desde,
+                hasta,
+                tipo: tipoPeriodo
             });
+            const data = result.data || {};
 
-            const result = await response.json();
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || 'Error al consolidar');
+            if (data.datosPorPeriodo && window.actualizarTablaConsolidacion) {
+                window.actualizarTablaConsolidacion(data.datosPorPeriodo);
+            }
+            if (data.datosPorPeriodoBG && window.actualizarTablaBalance) {
+                window.actualizarTablaBalance(data.datosPorPeriodoBG);
+            }
+            if (data.datosPorPeriodoFO && window.actualizarTablaFlujoOperativo) {
+                window.actualizarTablaFlujoOperativo(data.datosPorPeriodoFO);
+            }
+            if (data.datosPorPeriodoFC && window.actualizarTablaFlujoCorporativo) {
+                window.actualizarTablaFlujoCorporativo(data.datosPorPeriodoFC);
             }
 
-            const data = result.data || {};
-            // ER y BG no tienen prefijo en los inputs
-            this.applySection(data.estadoResultados, 'consolidado', '');
-            this.applySection(data.balanceGeneral, 'consolidado', '');
-            // FO y FC usan prefijos 'fo_' y 'fc_' respectivamente en los nombres de input
-            this.applySection(data.flujoOperativo, 'consolidado', 'fo_');
-            this.applySection(data.flujoCorporativo, 'consolidado', 'fc_');
+            this.uiManager.applySection(data.estadoResultados, 'consolidado', '');
+            this.uiManager.applySection(data.balanceGeneral, 'consolidado', '');
+            this.uiManager.applySection(data.flujoOperativo, 'consolidado', 'fo_');
+            this.uiManager.applySection(data.flujoCorporativo, 'consolidado', 'fc_');
+            this.uiManager.sincronizarCamposCalculados();
+            this.uiManager.updateEmpresasCount(empresas.length);
 
-            // Sincronizar campos calculados en SALDOS
-            this.sincronizarCamposCalculados();
-
-            // Actualizar contador de empresas
-            const countSpan = document.getElementById('empresas-count');
-            if (countSpan) {
-                countSpan.textContent = empresas.length;
+            if (data.datosPorPeriodo?.periodos) {
+                console.log(`✅ Consolidación ${tipoPeriodo} generada con ${data.datosPorPeriodo.periodos.length} período(s)`);
             }
         } catch (error) {
             console.error('Error al generar consolidación:', error);
             alert(`Error: ${error.message}`);
-        }
-    }
-    
-    sincronizarCamposCalculados() {
-        console.log('🔄 Sincronizando campos calculados en SALDOS...');
-        
-        // Sincronizar Flujo Operativo
-        const foTotalIngresos = document.querySelector('[name="fo_total_ingresos_consolidado"]');
-        const foIngresosCalculado = document.querySelector('[name="fo_ingresos_calculado_consolidado"]');
-        
-        if (foTotalIngresos && foIngresosCalculado) {
-            foIngresosCalculado.value = foTotalIngresos.value;
-            console.log('✅ FO Ingresos sincronizado:', foTotalIngresos.value, '->', foIngresosCalculado.value);
-        }
-        
-        const foTotalEgresos = document.querySelector('[name="fo_total_egresos_consolidado"]');
-        const foEgresosCalculado = document.querySelector('[name="fo_egresos_calculado_consolidado"]');
-        
-        if (foTotalEgresos && foEgresosCalculado) {
-            foEgresosCalculado.value = foTotalEgresos.value;
-            console.log('✅ FO Egresos sincronizado:', foTotalEgresos.value, '->', foEgresosCalculado.value);
-        }
-        
-        // Sincronizar Flujo Corporativo
-        const fcTotalIngresos = document.querySelector('[name="fc_total_ingresos_consolidado"]');
-        const fcIngresosCalculado = document.querySelector('[name="fc_ingresos_calculado_consolidado"]');
-        
-        if (fcTotalIngresos && fcIngresosCalculado) {
-            fcIngresosCalculado.value = fcTotalIngresos.value;
-            console.log('✅ FC Ingresos sincronizado:', fcTotalIngresos.value, '->', fcIngresosCalculado.value);
-        }
-        
-        const fcTotalEgresos = document.querySelector('[name="fc_total_egresos_consolidado"]');
-        const fcEgresosCalculado = document.querySelector('[name="fc_egresos_calculado_consolidado"]');
-        
-        if (fcTotalEgresos && fcEgresosCalculado) {
-            fcEgresosCalculado.value = fcTotalEgresos.value;
-            console.log('✅ FC Egresos sincronizado:', fcTotalEgresos.value, '->', fcEgresosCalculado.value);
         }
     }
 }

@@ -5,122 +5,84 @@
         </h5>
     </div>
     <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered">
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered" id="tabla-balance-periodos">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Cuenta</th>
+                        <th class="text-end" style="width: 20%;">Total</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr class="table-secondary">
-                        <td colspan="2" class="fw-bold text-center">ACTIVO</td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold" style="width: 70%;">Activo Corriente</td>
-                        <td style="width: 30%;">
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="activo_corriente_consolidado" readonly value="160000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Disponible</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="disponible_consolidado" readonly value="70000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Exigible</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="exigible_consolidado" readonly value="55000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Realizable</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="realizable_consolidado" readonly value="35000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold">Activo No Corriente</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="activo_no_corriente_consolidado" readonly value="225000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Activo Fijo Tangible</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="activo_fijo_tangible_consolidado" readonly value="185000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Activo Diferido</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="activo_diferido_consolidado" readonly value="28000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Otros Activos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="otros_activos_consolidado" readonly value="12000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-success">
-                        <td class="fw-bold">Total Activo</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="total_activo_consolidado" readonly value="385000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td colspan="2" class="fw-bold text-center">PASIVO Y PATRIMONIO</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Pasivo Corriente</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="pasivo_corriente_consolidado" readonly value="85000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold">Pasivo No Corriente</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="pasivo_no_corriente_consolidado" readonly value="57000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Previsión Beneficios Sociales</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="prevision_beneficios_sociales_consolidado" readonly value="22000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Obligaciones Bancarias</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="obligaciones_bancarias_consolidado" readonly value="28000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Intereses por Pagar</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="intereses_pagar_consolidado" readonly value="5000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4">Procesos Legales</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="procesos_legales_consolidado" readonly value="2000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td colspan="2" class="fw-bold text-center">PATRIMONIO</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Patrimonio</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="patrimonio_consolidado" readonly value="243000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-success">
-                        <td class="fw-bold">Total Pasivo y Patrimonio</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="total_pasivo_patrimonio_consolidado" readonly value="385000.00">
-                        </td>
-                    </tr>
-                </tbody>
+    <tr data-key="DISPONIBLE"><td>Disponible</td><td class="text-end">0.00</td></tr>
+    <tr data-key="EXIGIBLE"><td>Exigible</td><td class="text-end">0.00</td></tr>
+    <tr data-key="REALIZABLE"><td>Realizable</td><td class="text-end">0.00</td></tr>
+    <tr data-key="ACTIVO_CORRIENTE" class="table-active"><td class="fw-bold">Activo Corriente</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="ACTIVO_FIJO_TANGIBLE"><td>Activo Fijo Tangible</td><td class="text-end">0.00</td></tr>
+    <tr data-key="ACTIVO_DIFERIDO"><td>Activo Diferido</td><td class="text-end">0.00</td></tr>
+    <tr data-key="OTROS_ACTIVOS"><td>Otros Activos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="ACTIVO_NO_CORRIENTE" class="table-active"><td class="fw-bold">Activo No Corriente</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="TOTAL_ACTIVO" class="table-success"><td class="fw-bold">Total Activo</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="PASIVO_CORRIENTE" class="table-active"><td class="fw-bold">Pasivo Corriente</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="PREVISION_BENEFICIOS_SOCIALES"><td>Previsión Beneficios Sociales</td><td class="text-end">0.00</td></tr>
+    <tr data-key="OBLIGACIONES_BANCARIAS"><td>Obligaciones Bancarias</td><td class="text-end">0.00</td></tr>
+    <tr data-key="INTERESES_POR_PAGAR"><td>Intereses por Pagar</td><td class="text-end">0.00</td></tr>
+    <tr data-key="PROCESOS_LEGALES"><td>Procesos Legales</td><td class="text-end">0.00</td></tr>
+    <tr data-key="PASIVO_NO_CORRIENTE" class="table-active"><td class="fw-bold">Pasivo No Corriente</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="PATRIMONIO" class="table-active"><td class="fw-bold">Patrimonio</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="TOTAL_PASIVO_PATRIMONIO" class="table-success"><td class="fw-bold">Total Pasivo y Patrimonio</td><td class="text-end fw-bold">0.00</td></tr>
+</tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+function actualizarTablaBalance(datos) {
+    const tabla = document.getElementById('tabla-balance-periodos');
+    if (!tabla || !datos) return;
+
+    const headRow = tabla.querySelector('thead tr');
+    const cuentaTh = headRow.querySelectorAll('th')[0];
+    const totalTh = headRow.querySelectorAll('th')[1];
+    headRow.innerHTML = '';
+    if (cuentaTh) headRow.appendChild(cuentaTh);
+
+    (datos.periodos || []).forEach((p) => {
+        const th = document.createElement('th');
+        th.className = 'text-end';
+        th.textContent = p;
+        headRow.appendChild(th);
+    });
+
+    if (totalTh) headRow.appendChild(totalTh);
+
+    const rows = tabla.querySelectorAll('tbody tr[data-key]');
+    rows.forEach((tr) => {
+        const key = tr.getAttribute('data-key');
+        const series = (datos.series && datos.series[key]) ? datos.series[key] : [];
+        const total = series.reduce((a, b) => a + (Number(b) || 0), 0);
+
+        const tds = tr.querySelectorAll('td');
+        const cuentaTd = tds[0];
+        const totalTd = tds[1];
+
+        tr.innerHTML = '';
+        if (cuentaTd) tr.appendChild(cuentaTd);
+
+        (datos.periodos || []).forEach((_, idx) => {
+            const td = document.createElement('td');
+            td.className = 'text-end';
+            td.textContent = formatNumber(series[idx] || 0);
+            tr.appendChild(td);
+        });
+
+        if (totalTd) {
+            totalTd.textContent = formatNumber(total);
+            tr.appendChild(totalTd);
+        }
+    });
+}
+
+window.actualizarTablaBalance = actualizarTablaBalance;
+</script>

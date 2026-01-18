@@ -5,149 +5,86 @@
         </h5>
     </div>
     <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered">
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered" id="tabla-fc-periodos">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Cuenta</th>
+                        <th class="text-end" style="width: 20%;">Total</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr class="table-secondary">
-                        <td colspan="2" class="fw-bold text-center">INGRESOS</td>
-                    </tr>
-                    <tr>
-                        <td style="width: 70%;">Transferencia Fondos</td>
-                        <td style="width: 30%;">
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_transferencia_fondos_consolidado" readonly value="90000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Desembolsos Bancarios</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_desembolsos_bancarios_consolidado" readonly value="50000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Otros Ingresos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_otros_ingresos_consolidado" readonly value="7000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold">Total Ingresos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="fc_total_ingresos_consolidado" readonly value="147000.00">
-                        </td>
-                    </tr>
-                    
-                    <!-- EGRESOS -->
-                    <tr class="table-secondary">
-                        <td colspan="2" class="fw-bold text-center">EGRESOS</td>
-                    </tr>
-                    <tr>
-                        <td>Préstamos Bancarios</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_prestamos_bancarios_consolidado" readonly value="25000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Inversiones</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_inversiones_consolidado" readonly value="30000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>RPR Consultores</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_rpr_consultores_consolidado" readonly value="8000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Bonos PLRS</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_bonos_plrs_consolidado" readonly value="5000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Dividendos a Pagar</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_dividendos_pagar_consolidado" readonly value="12000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Cuentas por Pagar</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_cuentas_pagar_consolidado" readonly value="10000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Aguinaldos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_aguinaldos_consolidado" readonly value="15000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Finiquitos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_finiquitos_consolidado" readonly value="3000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Primas</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_primas_consolidado" readonly value="4000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Retroactivos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_retroactivos_consolidado" readonly value="2000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>IUE</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_iue_consolidado" readonly value="8000.00">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Otros Gastos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_otros_gastos_consolidado" readonly value="5000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold">Total Egresos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="fc_total_egresos_consolidado" readonly value="127000.00">
-                        </td>
-                    </tr>
-                    
-                    <tr class="table-secondary">
-                        <td colspan="2" class="fw-bold text-center">SALDOS</td>
-                    </tr>
-                    <tr>
-                        <td>Saldo Anterior</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end" name="fc_saldo_anterior_consolidado" readonly value="30000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold">Ingresos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="fc_ingresos_calculado_consolidado" readonly value="147000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-primary">
-                        <td class="fw-bold">Egresos</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="fc_egresos_calculado_consolidado" readonly value="127000.00">
-                        </td>
-                    </tr>
-                    <tr class="table-success">
-                        <td class="fw-bold">Saldo Actual</td>
-                        <td>
-                            <input type="number" step="0.01" class="form-control text-end fw-bold" name="fc_saldo_actual_consolidado" readonly value="50000.00">
-                        </td>
-                    </tr>
-                </tbody>
+    <tr data-key="TRANSFERENCIA_FONDOS"><td>Transferencia Fondos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="DESEMBOLSOS_BANCARIOS"><td>Desembolsos Bancarios</td><td class="text-end">0.00</td></tr>
+    <tr data-key="OTROS_INGRESOS"><td>Otros Ingresos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="TOTAL_INGRESOS" class="table-active"><td class="fw-bold">Total Ingresos</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="PRESTAMOS_BANCARIOS"><td>Préstamos Bancarios</td><td class="text-end">0.00</td></tr>
+    <tr data-key="INVERSIONES"><td>Inversiones</td><td class="text-end">0.00</td></tr>
+    <tr data-key="RPR_CONSULTORES"><td>RPR Consultores</td><td class="text-end">0.00</td></tr>
+    <tr data-key="BONOS_PLRS"><td>Bonos PLRS</td><td class="text-end">0.00</td></tr>
+    <tr data-key="DIVIDENDOS_PAGAR"><td>Dividendos a Pagar</td><td class="text-end">0.00</td></tr>
+    <tr data-key="CUENTAS_PAGAR"><td>Cuentas por Pagar</td><td class="text-end">0.00</td></tr>
+    <tr data-key="AGUINALDOS"><td>Aguinaldos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="FINIQUITOS"><td>Finiquitos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="PRIMAS"><td>Primas</td><td class="text-end">0.00</td></tr>
+    <tr data-key="RETROACTIVOS"><td>Retroactivos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="IUE"><td>IUE</td><td class="text-end">0.00</td></tr>
+    <tr data-key="OTROS_GASTOS"><td>Otros Gastos</td><td class="text-end">0.00</td></tr>
+    <tr data-key="TOTAL_EGRESOS" class="table-active"><td class="fw-bold">Total Egresos</td><td class="text-end fw-bold">0.00</td></tr>
+    <tr data-key="SALDO_ANTERIOR"><td>Saldo Anterior</td><td class="text-end">0.00</td></tr>
+    <tr data-key="SALDO_ACTUAL" class="table-success"><td class="fw-bold">Saldo Actual</td><td class="text-end fw-bold">0.00</td></tr>
+</tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+function actualizarTablaFlujoCorporativo(datos) {
+    const tabla = document.getElementById('tabla-fc-periodos');
+    if (!tabla || !datos) return;
+
+    const headRow = tabla.querySelector('thead tr');
+    const cuentaTh = headRow.querySelectorAll('th')[0];
+    const totalTh = headRow.querySelectorAll('th')[1];
+    headRow.innerHTML = '';
+    if (cuentaTh) headRow.appendChild(cuentaTh);
+
+    (datos.periodos || []).forEach((p) => {
+        const th = document.createElement('th');
+        th.className = 'text-end';
+        th.textContent = p;
+        headRow.appendChild(th);
+    });
+
+    if (totalTh) headRow.appendChild(totalTh);
+
+    const rows = tabla.querySelectorAll('tbody tr[data-key]');
+    rows.forEach((tr) => {
+        const key = tr.getAttribute('data-key');
+        const series = (datos.series && datos.series[key]) ? datos.series[key] : [];
+        const total = series.reduce((a, b) => a + (Number(b) || 0), 0);
+
+        const tds = tr.querySelectorAll('td');
+        const cuentaTd = tds[0];
+        const totalTd = tds[1];
+
+        tr.innerHTML = '';
+        if (cuentaTd) tr.appendChild(cuentaTd);
+
+        (datos.periodos || []).forEach((_, idx) => {
+            const td = document.createElement('td');
+            td.className = 'text-end';
+            td.textContent = formatNumber(series[idx] || 0);
+            tr.appendChild(td);
+        });
+
+        if (totalTd) {
+            totalTd.textContent = formatNumber(total);
+            tr.appendChild(totalTd);
+        }
+    });
+}
+
+window.actualizarTablaFlujoCorporativo = actualizarTablaFlujoCorporativo;
+</script>

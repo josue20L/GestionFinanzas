@@ -6,25 +6,44 @@
 <!-- Selectores de rango y empresas -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="row g-3 align-items-end">
+        <div class="row g-3">
+            <!-- Tipo de Período -->
             <div class="col-md-3">
-                <label for="desde-select" class="form-label">Desde</label>
-                <input type="month" id="desde-select" class="form-control" value="2023-01">
+                <label for="tipo-periodo" class="form-label">Tipo de Período</label>
+                <select id="tipo-periodo" class="form-select">
+                    <option value="mensual">Mensual</option>
+                    <option value="trimestral">Trimestral</option>
+                    <option value="anual-fiscal">Anual Fiscal</option>
+                </select>
             </div>
-            <div class="col-md-3">
-                <label for="hasta-select" class="form-label">Hasta</label>
-                <input type="month" id="hasta-select" class="form-control" value="2024-01">
+
+            <!-- Desde -->
+            <div class="col-md-3" id="desde-container">
+                <!-- Se llenará dinámicamente -->
             </div>
-            <div class="col-md-6">
+
+            <!-- Hasta -->
+            <div class="col-md-3" id="hasta-container">
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <!-- Botones -->
+            <div class="col-md-3 d-flex align-items-end">
                 <div class="btn-group w-100">
                     <button type="button" class="btn btn-primary" id="btn-generar-consolidacion">
-                        <i class="bi bi-clipboard-data me-2"></i> Generar Reporte
+                        <i class="bi bi-clipboard-data me-2"></i> Generar
                     </button>
                     <button type="button" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-clockwise me-2"></i> Actualizar
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- Información del período seleccionado -->
+        <div class="alert alert-info mt-3" id="info-periodo" style="display: none;">
+            <i class="bi bi-info-circle me-2"></i>
+            <span id="texto-info-periodo"></span>
         </div>
         
         <!-- Selección de empresas -->
@@ -36,6 +55,12 @@
         </div>
     </div>
 </div>
+
+<script src="/js/consolidacion/utils/formatNumber.js"></script>
+<script src="/js/consolidacion/utils/validation.js"></script>
+<script src="/js/consolidacion/periodConverter.js"></script>
+<script src="/js/consolidacion/apiService.js"></script>
+<script src="/js/consolidacion/uiManager.js"></script>
 <script src="/js/consolidacion.js"></script>
 
 <!-- Contenedor para los formularios consolidados -->
