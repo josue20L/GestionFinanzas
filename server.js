@@ -113,14 +113,10 @@ app.get('/consolidacion', (req, res) => {
 });
 
 // Ruta de Reportes
-app.get('/reportes', (req, res) => {
-  res.render('reportes/reportes', { 
+app.get('/reportes', requireAuth, (req, res) => {
+  res.render('estados-financieros/reportes', { 
     title: 'Reportes',
-    user: { 
-      nombre_usuario: 'Demo', 
-      email_usuario: 'demo@demo.com',
-      isAdmin: true 
-    }
+    user: req.session.user
   });
 });
 
@@ -144,6 +140,7 @@ const balanceGeneralRoutes = require('./src/routes/balanceGeneral');
 const flujoOperativoRoutes = require('./src/routes/flujoOperativo');
 const flujoCorporativoRoutes = require('./src/routes/flujoCorporativo');
 const consolidacionRoutes = require('./src/routes/consolidacion');
+const reportesRoutes = require('./src/routes/reportes');
 const empresasViewsRoutes = require('./src/routes/empresasViews');
 const monedasRoutes = require('./src/routes/monedas');
 const authRoutes = require('./src/routes/auth');
@@ -157,6 +154,7 @@ app.use('/api', balanceGeneralRoutes);
 app.use('/api', flujoOperativoRoutes);
 app.use('/api', flujoCorporativoRoutes);
 app.use('/api', consolidacionRoutes);
+app.use('/api', requireAuth, reportesRoutes);
 app.use('/empresas', empresasViewsRoutes);
 
 // Auth + Usuarios (solo admin)
