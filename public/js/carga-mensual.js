@@ -34,8 +34,164 @@ class CargaMensualManager {
         }
         
         // VERIFICAR CAMBIOS ANTES DE CAMBIAR DE PERÍODO
-        this.selectEmpresa.addEventListener('change', () => this.verificarCambiosAntesDeCambiar());
+        this.selectEmpresa.addEventListener('change', () => {
+            this.verificarCambiosAntesDeCambiar();
+            this.cargarPeriodosExistentes();
+        });
         this.periodoInput.addEventListener('change', () => this.verificarCambiosAntesDeCambiar());
+    }
+
+    ocultarPeriodosExistentes() {
+        const container = document.getElementById('periodos-existentes-container');
+        if (container) {
+            container.style.display = 'none';
+        }
+    }
+
+    mostrarPeriodosExistentesSiEstanOcultos() {
+        const container = document.getElementById('periodos-existentes-container');
+        if (container && container.style.display === 'none') {
+            container.style.display = 'block';
+        }
+    }
+
+    async cargarPeriodosExistentes() {
+        const empresaId = this.selectEmpresa.value;
+        
+        if (!empresaId) {
+            this.mostrarPeriodosExistentes([]);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/periodos-financieros/empresa/${empresaId}`);
+            const result = await response.json();
+
+            if (response.ok) {
+                this.mostrarPeriodosExistentes(result.periodos || []);
+            } else {
+                console.error('Error al cargar períodos:', result.message);
+                this.mostrarPeriodosExistentes([]);
+            }
+        } catch (error) {
+            console.error('Error al cargar períodos existentes:', error);
+            this.mostrarPeriodosExistentes([]);
+        }
+    }
+
+    mostrarPeriodosExistentes(periodos) {
+        // Buscar o crear contenedor para períodos existentes
+        let container = document.getElementById('periodos-existentes-container');
+        
+        if (!container) {
+            // Crear el contenedor si no existe
+            container = document.createElement('div');
+            container.id = 'periodos-existentes-container';
+            container.className = 'mt-3';
+            
+            // Insertar después del selector de período
+            const periodoCol = this.periodoInput.closest('.col-md-3');
+            if (periodoCol) {
+                periodoCol.parentNode.insertBefore(container, periodoCol.nextSibling);
+            }
+        }
+
+        if (periodos.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <small>No hay períodos cargados para esta empresa</small>
+                </div>
+            `;
+            return;
+        }
+
+        // Agrupar períodos por año
+        const periodosPorAnio = {};
+        periodos.forEach(periodo => {
+            if (!periodosPorAnio[periodo.ANO]) {
+                periodosPorAnio[periodo.ANO] = [];
+            }
+            periodosPorAnio[periodo.ANO].push(periodo);
+        });
+
+        // Obtener todos los años ordenados descendente
+        const anios = Object.keys(periodosPorAnio).sort((a, b) => b - a);
+
+        // Generar HTML para la vista compacta por filas
+        let periodosHtml = '<div class="card"><div class="card-header"><small class="fw-bold">Períodos por año:</small></div><div class="card-body p-2">';
+        
+        anios.forEach(anio => {
+            const periodosDelAnio = periodosPorAnio[anio];
+            
+            periodosHtml += `
+                <div class="row align-items-center mb-2 pb-2 border-bottom">
+                    <div class="col-auto">
+                        <strong class="text-primary">${anio}</strong>
+                        <br><small class="text-muted">${periodosDelAnio.length}/12 meses</small>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex gap-1 flex-wrap">
+            `;
+
+            // Generar los 12 meses
+            for (let mes = 1; mes <= 12; mes++) {
+                const periodoExistente = periodosDelAnio.find(p => p.MES === mes);
+                const mesStr = String(mes).padStart(2, '0');
+                const fecha = `${anio}-${mesStr}`;
+                
+                if (periodoExistente) {
+                    // Mes existe
+                    const estadoClass = periodoExistente.CERRADO ? 'danger' : 'success';
+                    
+                    periodosHtml += `
+                        <div class="btn btn-sm btn-outline-success position-relative" 
+                             style="cursor: pointer;" 
+                             onclick="cargaMensualManager.cargarPeriodoExistente('${fecha}')" 
+                             title="${this.getNombreMes(mes)} - ${periodoExistente.CERRADO ? 'Cerrado' : 'Abierto'} - Click para cargar">
+                            ${this.getNombreMes(mes)}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-${estadoClass}" style="font-size: 0.6rem; padding: 1px 3px;">
+                                ${periodoExistente.tiene_er ? '•' : ''}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    // Mes no existe
+                    periodosHtml += `
+                        <div class="btn btn-sm btn-outline-danger" 
+                             style="cursor: pointer; opacity: 0.6;" 
+                             onclick="cargaMensualManager.cargarPeriodoExistente('${fecha}')" 
+                             title="${this.getNombreMes(mes)} - Faltante - Click para crear">
+                            ${this.getNombreMes(mes)}
+                        </div>
+                    `;
+                }
+            }
+            
+            periodosHtml += `
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        periodosHtml += '</div></div>';
+        container.innerHTML = periodosHtml;
+    }
+
+    getNombreMes(mes) {
+        const nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        return nombres[mes - 1] || 'Mes';
+    }
+
+    async cargarPeriodoExistente(periodo) {
+        // Establecer el período en el input
+        this.periodoInput.value = periodo;
+        
+        // Simular clic en el botón de cargar/crear
+        if (this.btnCargarCrear) {
+            this.btnCargarCrear.click();
+        }
     }
 
     async cargarEmpresas() {
@@ -77,6 +233,9 @@ class CargaMensualManager {
         try {
             this.showLoading(true);
             this.showToast('Creando/obteniendo período financiero...', 'info');
+
+            // 🆕 ESCONDER VISTA DE PERÍODOS EXISTENTES
+            this.ocultarPeriodosExistentes();
 
             const response = await fetch('/api/periodos-financieros/crear-o-obtener', {
                 method: 'POST',
