@@ -210,12 +210,28 @@ async function loadDashboardData() {
             document.getElementById('totalPeriodos').textContent = '0';
         }
         
-        // Cargar usuarios
+        // Cargar usuarios: parsear el HTML y contar solo filas dentro de <tbody>
         try {
             const usersResponse = await fetch('/usuarios');
             const usersText = await usersResponse.text();
-            // Extraer número de usuarios del HTML (esto es una aproximación)
-            const userCount = (usersText.match(/<tr>/g) || []).length;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(usersText, 'text/html');
+            const tbodyRows = doc.querySelectorAll('table tbody tr');
+
+            let userCount = 0;
+            if (tbodyRows.length === 1) {
+                const first = tbodyRows[0];
+                const text = (first.textContent || '').trim();
+                // Si la única fila es el mensaje "No hay usuarios", contar 0
+                if (/no hay usuarios/i.test(text)) {
+                    userCount = 0;
+                } else {
+                    userCount = 1;
+                }
+            } else {
+                userCount = tbodyRows.length;
+            }
+
             document.getElementById('totalUsuarios').textContent = userCount;
         } catch (error) {
             console.error('Error cargando usuarios:', error);
