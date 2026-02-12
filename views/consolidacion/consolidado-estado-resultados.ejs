@@ -7,7 +7,7 @@
             <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
                 <i class="bi bi-printer me-1"></i> Imprimir
             </button>
-            <button class="btn btn-sm btn-outline-success" onclick="exportToExcel()">
+            <button class="btn btn-sm btn-outline-success" onclick="window.exportAllConsolidacion && window.exportAllConsolidacion()">
                 <i class="bi bi-file-excel me-1"></i> Excel
             </button>
         </div>
@@ -237,15 +237,69 @@ function actualizarTotales(datos) {
 const formatNumber = (typeof window !== 'undefined' && typeof window.formatNumber === 'function')
     ? window.formatNumber
     : function(num) {
-        return new Intl.NumberFormat('es-ES', {
+        return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
+            useGrouping: true
         }).format(num || 0);
     };
 
-// Función para exportar a Excel
+// Función para exportar a Excel (CSV simple) usando los últimos datos consolidados
 function exportToExcel() {
-    alert('Exportación a Excel - Función por implementar');
+    const dataWrapper = window.consolidacionDatosUltimos;
+    const datos = dataWrapper && dataWrapper.datosPorPeriodo ? dataWrapper.datosPorPeriodo : null;
+    if (!datos || !Array.isArray(datos.periodos) || !datos.periodos.length) {
+        alert('No hay datos de consolidación para exportar.');
+        return;
+    }
+
+    const periodos = datos.periodos;
+
+    const conceptos = [
+        'Ventas Netas',
+        'Costo de Ventas',
+        'Utilidad Bruta',
+        'Gasto Administrativo',
+        'Gasto Comercialización',
+        'Gasto SIG',
+        'Gasto Operativo',
+        'EBIT',
+        'Gasto Tributario',
+        'Gasto Financiero',
+        'Utilidad Después de Impuestos',
+        'Otros Ingresos',
+        'Otros Egresos',
+        'Utilidad Neta'
+    ];
+
+    const filas = [];
+    const encabezado = ['Concepto', ...periodos, 'Total'];
+    filas.push(encabezado.join(','));
+
+    for (let filaIndex = 0; filaIndex < conceptos.length; filaIndex++) {
+        const row = [conceptos[filaIndex]];
+        let totalFila = 0;
+
+        periodos.forEach((_, periodoIndex) => {
+            const valor = obtenerValorPorFila(filaIndex, periodoIndex, datos) || 0;
+            totalFila += valor;
+            row.push(String(valor).replace(/,/g, '.'));
+        });
+
+        row.push(String(totalFila).replace(/,/g, '.'));
+        filas.push(row.join(','));
+    }
+
+    const csvContent = filas.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'consolidacion-estado-resultados.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 // Datos mock para prueba

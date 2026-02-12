@@ -31,6 +31,57 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Inicializar modal genérico de confirmación
+    (function initConfirmModal() {
+        const modalEl = document.getElementById('confirmModal');
+        if (!modalEl) return;
+
+        const modal = new bootstrap.Modal(modalEl);
+        const titleEl = document.getElementById('confirmModalTitle');
+        const msgEl = document.getElementById('confirmModalMessage');
+        const okBtn = document.getElementById('confirmModalOk');
+        const cancelBtn = document.getElementById('confirmModalCancel');
+
+        let onConfirm = null;
+
+        okBtn?.addEventListener('click', () => {
+            modal.hide();
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            modal.hide();
+        });
+
+        window.confirmModal = {
+            show({ title, message, confirmText, cancelText, confirmVariant = 'danger', onOk }) {
+                if (titleEl && title) titleEl.textContent = title;
+                if (msgEl && message) msgEl.textContent = message;
+                if (okBtn && confirmText) okBtn.textContent = confirmText;
+
+                if (cancelBtn) {
+                    if (cancelText) {
+                        cancelBtn.textContent = cancelText;
+                        cancelBtn.style.display = '';
+                    } else {
+                        cancelBtn.style.display = 'none';
+                    }
+                }
+
+                // Cambiar estilo del botón de confirmación (primario / peligro)
+                if (okBtn) {
+                    okBtn.classList.remove('btn-danger', 'btn-primary', 'btn-warning');
+                    okBtn.classList.add(`btn-${confirmVariant}`);
+                }
+
+                onConfirm = typeof onOk === 'function' ? onOk : null;
+                modal.show();
+            }
+        };
+    })();
+
     // Manejar el tema oscuro
     const themeToggle = document.querySelector('[data-bs-theme-toggle]');
     if (themeToggle) {

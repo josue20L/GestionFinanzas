@@ -409,6 +409,19 @@ class CargaMensualManager {
         } catch (error) {
             console.error('Error al guardar datos:', error);
             this.showToast(`❌ Error al guardar datos: ${error.message}`, 'danger');
+
+            // Si el error viene del Balance General que no cuadra, mostrar modal claro
+            if (window.confirmModal && error && typeof error.message === 'string' &&
+                error.message.includes('Balance General no cuadra')) {
+                window.confirmModal.show({
+                    title: 'Balance General no válido',
+                    message: 'El Total Activo debe ser igual al Total Pasivo + Patrimonio. Revisa los importes antes de guardar.',
+                    confirmText: 'Entendido',
+                    cancelText: '',
+                    confirmVariant: 'warning',
+                    onOk: null
+                });
+            }
             
             // Actualizar mensaje de validación
             const mensajeValidacion = document.getElementById('mensaje-validacion');

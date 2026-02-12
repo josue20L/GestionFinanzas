@@ -53,6 +53,17 @@ const consolidar = async (req, res) => {
         const consolidacionService = new ConsolidacionService();
         const datosConsolidados = await consolidacionService.consolidar(empresasIds, range, tipo);
 
+        // Guardar en sesión la última consolidación generada (para visor de reportes)
+        if (req.session) {
+            req.session.ultimaConsolidacion = {
+                empresas: empresasIds,
+                desde,
+                hasta,
+                tipo,
+                datos: datosConsolidados
+            };
+        }
+
         return res.json({
             success: true,
             periodo: { desde, hasta },

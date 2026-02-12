@@ -19,6 +19,9 @@ app.set('views', path.join(__dirname, 'views'));
 // Archivos estáticos (public/)
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Servir archivos de uploads (para PDFs)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -114,13 +117,19 @@ app.get('/consolidacion', (req, res) => {
 
 // Ruta de Reportes
 app.get('/reportes', (req, res) => {
+  const ultimaConsolidacion = req.session ? req.session.ultimaConsolidacion || null : null;
   res.render('reportes/reportes', { 
     title: 'Reportes',
-    user: { 
-      nombre_usuario: 'Demo', 
-      email_usuario: 'demo@demo.com',
-      isAdmin: true 
-    }
+    ultimaConsolidacion,
+    user: req.session.user 
+  });
+});
+
+// Ruta de Resumen Ejecutivo
+app.get('/reportes/resumen-ejecutivo', (req, res) => {
+  res.render('reportes/resumen-ejecutivo', { 
+    title: 'Resumen Ejecutivo',
+    user: req.session.user 
   });
 });
 
@@ -128,11 +137,7 @@ app.get('/reportes', (req, res) => {
 app.get('/carga-mensual', (req, res) => {
   res.render('estados-financieros/carga-mensual', { 
     title: 'Carga Mensual',
-    user: { 
-      nombre_usuario: 'Demo', 
-      email_usuario: 'demo@demo.com',
-      isAdmin: true 
-    }
+    user: req.session.user 
   });
 });
 
@@ -148,6 +153,8 @@ const empresasViewsRoutes = require('./src/routes/empresasViews');
 const monedasRoutes = require('./src/routes/monedas');
 const authRoutes = require('./src/routes/auth');
 const usuariosRoutes = require('./src/routes/usuarios');
+const reportesRoutes = require('./src/routes/reportes');
+const documentosRoutes = require('./src/routes/documentos');
 
 app.use('/api', empresasRoutes);
 app.use('/api/monedas', monedasRoutes);
@@ -157,6 +164,8 @@ app.use('/api', balanceGeneralRoutes);
 app.use('/api', flujoOperativoRoutes);
 app.use('/api', flujoCorporativoRoutes);
 app.use('/api', consolidacionRoutes);
+app.use('/api/reportes', reportesRoutes);
+app.use('/api', documentosRoutes);
 app.use('/empresas', empresasViewsRoutes);
 
 // Auth + Usuarios (solo admin)

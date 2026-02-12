@@ -14,7 +14,7 @@ class FlujoOperativoManager {
     }
 
     setupCalculos() {
-        const inputs = this.container.querySelectorAll('input[type="number"]:not([readonly])');
+        const inputs = this.container.querySelectorAll('input[type="number"]:not([readonly]), input[type="text"][inputmode="decimal"]:not([readonly])');
         
         inputs.forEach(input => {
             input.addEventListener('input', () => this.calcular());
@@ -119,7 +119,9 @@ class FlujoOperativoManager {
                     console.log('🔍 Input value actual:', input ? input.value : 'NULL');
                     
                     if (input) {
-                        input.value = data[rawkey] || 0;
+                        input.value = typeof window.formatNumberForInput === 'function'
+                            ? window.formatNumberForInput(data[rawkey] || 0)
+                            : (data[rawkey] || 0);
                         camposCargados++;
                         console.log('🔍 Input actualizado:', inputName, '=', data[rawkey] || 0);
                     } else {
@@ -172,12 +174,12 @@ class FlujoOperativoManager {
     }
 
     getFormData() {
-        const inputs = this.container.querySelectorAll('input[type="number"]');
+        const inputs = this.container.querySelectorAll('input[type="number"], input[type="text"][inputmode="decimal"]');
         const data = {};
 
+        const parseVal = typeof window.parseNumberFromInput === 'function' ? window.parseNumberFromInput : (v) => parseFloat(v) || 0;
         inputs.forEach(input => {
-            const value = parseFloat(input.value) || 0;
-            // Excluir campos calculados que no existen en la BD
+            const value = parseVal(input.value);
             if (!input.name.includes('_calculado') && input.name !== 'fo_total_ingresos' && input.name !== 'fo_total_egresos') {
                 data[input.name] = value;
             }
@@ -188,13 +190,17 @@ class FlujoOperativoManager {
 
     getInputValue(name) {
         const input = this.container.querySelector(`[name="${name}"]`);
-        return parseFloat(input?.value) || 0;
+        return typeof window.parseNumberFromInput === 'function'
+            ? window.parseNumberFromInput(input?.value)
+            : (parseFloat(input?.value) || 0);
     }
 
     setInputValue(name, value) {
         const input = this.container.querySelector(`[name="${name}"]`);
         if (input) {
-            input.value = value.toFixed(2);
+            input.value = typeof window.formatNumberForInput === 'function'
+                ? window.formatNumberForInput(value, 2)
+                : Number(value).toFixed(2);
         }
     }
 
@@ -203,11 +209,10 @@ class FlujoOperativoManager {
     }
 
     limpiarCampos() {
-        const inputs = this.container.querySelectorAll('input[type="number"]');
-        inputs.forEach(input => {
-            input.value = 0;
-        });
-        this.calcular(); // Recalcular con valores en 0
+        const inputs = this.container.querySelectorAll('input[type="number"], input[type="text"][inputmode="decimal"]');
+        const fmt = typeof window.formatNumberForInput === 'function' ? window.formatNumberForInput(0, 2) : '0.00';
+        inputs.forEach(input => { input.value = fmt; });
+        this.calcular();
     }
 }
 

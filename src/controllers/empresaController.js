@@ -34,6 +34,7 @@ const crearEmpresa = async (req, res) => {
         const empresa = await Empresa.getById(idEmpresa);
         res.status(201).json({ 
             message: 'Empresa creada exitosamente',
+            data: { id_empresa: idEmpresa },
             empresa: empresa
         });
     } catch (error) {

@@ -107,6 +107,9 @@ class ConsolidacionManager {
             });
             const data = result.data || {};
 
+            // Guardar datos para exportar luego desde cualquier vista
+            window.consolidacionDatosUltimos = data;
+
             if (data.datosPorPeriodo && window.actualizarTablaConsolidacion) {
                 window.actualizarTablaConsolidacion(data.datosPorPeriodo);
             }
