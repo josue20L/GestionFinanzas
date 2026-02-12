@@ -9,6 +9,7 @@ class Empresa {
                 FROM EMPRESA e
                 LEFT JOIN GRUPO_EMPRESARIAL g ON e.ID_GRUPO = g.ID_GRUPO
                 LEFT JOIN MONEDA m ON e.ID_MONEDA = m.ID_MONEDA
+                WHERE e.IS_SYSTEM = FALSE
                 ORDER BY e.NOMBRE_EMPRESA
             `);
             return rows;

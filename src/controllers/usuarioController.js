@@ -102,13 +102,27 @@ const create = async (req, res) => {
                 }
             }
 
-            // Obtener el rol Administrador
-            const [adminRol] = await db.query('SELECT ID_ROL FROM ROL WHERE NOMBRE_ROL = ?', ['Administrador']);
-            const idRol = adminRol[0].ID_ROL;
+            // Crear empresa del sistema si no existe
+            const [systemExists] = await db.query('SELECT ID_EMPRESA FROM EMPRESA WHERE IS_SYSTEM = 1 LIMIT 1');
+            if (systemExists.length === 0) {
+                const [grupoSistema] = await db.query('SELECT ID_GRUPO FROM GRUPO_EMPRESARIAL WHERE NOMBRE_GRUPO = ?', ['Tecnología']);
+                const [monedaSistema] = await db.query('SELECT ID_MONEDA FROM MONEDA WHERE NOMBRE_MONEDA = ?', ['Boliviano']);
+                
+                await db.query(`
+                    INSERT INTO EMPRESA (ID_GRUPO, ID_MONEDA, NOMBRE_EMPRESA, IS_SYSTEM) 
+                    VALUES (?, ?, ?, 1)
+                `, [grupoSistema[0].ID_GRUPO, monedaSistema[0].ID_MONEDA, 'Sistema']);
+                
+                console.log('✅ Empresa del sistema creada');
+            }
 
-            // Obtener primera empresa disponible
-            const allEmpresas = await Empresa.getAll();
-            const idEmpresa = (allEmpresas && allEmpresas.length > 0) ? allEmpresas[0].ID_EMPRESA : null;
+            // Obtener el rol Administrador
+            const [adminRolRows] = await db.query('SELECT ID_ROL FROM ROL WHERE NOMBRE_ROL = ?', ['Administrador']);
+            const idRol = adminRolRows.length > 0 ? adminRolRows[0].ID_ROL : null;
+
+            // Obtener empresa del sistema para el primer usuario
+            const [systemEmpresa] = await db.query('SELECT ID_EMPRESA FROM EMPRESA WHERE IS_SYSTEM = 1 LIMIT 1');
+            const idEmpresa = systemEmpresa.length > 0 ? systemEmpresa[0].ID_EMPRESA : null;
 
             const payload = {
                 nombre_usuario: (req.body.nombre_usuario || '').toString().trim(),
@@ -118,6 +132,8 @@ const create = async (req, res) => {
                 id_empresa: idEmpresa,
                 id_rol: idRol
             };
+
+            console.log('DEBUG: idRol =', idRol, 'idEmpresa =', idEmpresa);
 
             if (!payload.nombre_usuario || !payload.email_usuario || !payload.password) {
                 return res.status(400).render('auth/crear-admin', {
@@ -134,7 +150,7 @@ const create = async (req, res) => {
             console.log('🎉 Primer usuario administrador creado exitosamente');
             console.log('📧 Email:', payload.email_usuario);
             console.log('👑 Rol: Administrador');
-            console.log('🏢 Empresa asignada:', idEmpresa ? 'Primera empresa disponible' : 'Sin empresa');
+            console.log('🏢 Empresa asignada: Empresa del sistema');
 
             return res.redirect('/login');
         } else {
@@ -171,7 +187,7 @@ const create = async (req, res) => {
             error: error.message,
             empresas,
             roles,
-            isFirstUser: false
+            isFirstUser: isFirstUser
         });
     }
 };
