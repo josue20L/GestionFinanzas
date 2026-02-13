@@ -83,15 +83,23 @@ function actualizarTablaFlujoCorporativo(datos) {
         (datos.periodos || []).forEach((_, idx) => {
             const td = document.createElement('td');
             td.className = 'text-end';
-            td.textContent = formatNumber(series[idx] || 0);
+            const valor = series[idx] || 0;
+            td.setAttribute('data-valor-bob', valor);
+            td.textContent = formatNumber(valor);
             tr.appendChild(td);
         });
 
         if (totalTd) {
+            totalTd.setAttribute('data-valor-bob', total);
             totalTd.textContent = formatNumber(total);
             tr.appendChild(totalTd);
         }
     });
+
+    // Notificar al CurrencyManager
+    if (window.CurrencyManager) {
+        window.CurrencyManager.actualizarValoresEnTablas();
+    }
 }
 
 window.actualizarTablaFlujoCorporativo = actualizarTablaFlujoCorporativo;

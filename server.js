@@ -103,6 +103,14 @@ app.get('/monedas', requireAuth, (req, res) => {
   });
 });
 
+// Ruta para configuración de tasas de cambio
+app.get('/configuracion/tasas', requireAuth, (req, res) => {
+    res.render('configuracion/tasas', {
+        title: 'Configuración de Tasas de Cambio',
+        user: req.session.user
+    });
+});
+
 // Ruta de Consolidación
 app.get('/consolidacion', (req, res) => {
   res.render('consolidacion/consolidacion', { 
@@ -155,6 +163,7 @@ const authRoutes = require('./src/routes/auth');
 const usuariosRoutes = require('./src/routes/usuarios');
 const reportesRoutes = require('./src/routes/reportes');
 const documentosRoutes = require('./src/routes/documentos');
+const tasaCambioRoutes = require('./src/routes/tasaCambio');
 
 app.use('/api', empresasRoutes);
 app.use('/api/monedas', monedasRoutes);
@@ -166,6 +175,7 @@ app.use('/api', flujoCorporativoRoutes);
 app.use('/api', consolidacionRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api', documentosRoutes);
+app.use('/api/tasacambio', tasaCambioRoutes);
 app.use('/empresas', empresasViewsRoutes);
 
 // Auth + Usuarios (solo admin)

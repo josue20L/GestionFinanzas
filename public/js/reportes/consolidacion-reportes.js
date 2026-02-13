@@ -126,6 +126,11 @@ window.exportAllConsolidacion = function () {
     ];
 
     const lineas = [];
+    
+    // Obtener moneda actual
+    const moneda = window.CurrencyManager ? window.CurrencyManager.currentCurrency : 'BOB';
+    lineas.push(`Reporte Consolidado (Moneda: ${moneda})`);
+    lineas.push('');
 
     secciones.forEach((sec, idx) => {
         const table = document.querySelector(sec.selector);
@@ -136,7 +141,13 @@ window.exportAllConsolidacion = function () {
         const rows = table.querySelectorAll('thead tr, tbody tr');
         rows.forEach(row => {
             const cells = Array.from(row.children).map(td => {
-                const txt = (td.innerText || '').trim().replace(/\s+/g, ' ');
+                // Limpiar espacios y saltos de línea
+                let txt = (td.innerText || '').trim().replace(/\s+/g, ' ');
+                // Quitar comas de los números formateados para no romper el CSV
+                // pero mantener el punto decimal si existe
+                if (/^-?[\d,]+\.?\d*$/.test(txt)) {
+                    txt = txt.replace(/,/g, '');
+                }
                 const safe = txt.replace(/"/g, '""');
                 return `"${safe}"`;
             });
@@ -144,6 +155,7 @@ window.exportAllConsolidacion = function () {
         });
 
         if (idx < secciones.length - 1) {
+            lineas.push('');
             lineas.push('');
         }
     });
@@ -157,8 +169,9 @@ window.exportAllConsolidacion = function () {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+    const fecha = new Date().toISOString().split('T')[0];
     a.href = url;
-    a.download = 'consolidacion-completa.csv';
+    a.download = `consolidacion-completa-${moneda}-${fecha}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

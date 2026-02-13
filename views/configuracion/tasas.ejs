@@ -1,0 +1,61 @@
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4 text-gray-800">Configuración de Tasas de Cambio</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulario de Actualización -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actualizar Tasa (BOB ↔ USD)</h6>
+                </div>
+                <div class="card-body">
+                    <form id="formTasa">
+                        <div class="form-group mb-3">
+                            <label for="valorVenta" class="form-label">Tasa de Cambio (1 USD = X BOB)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Bs.</span>
+                                <input type="number" step="0.0001" class="form-control" id="valorVenta" required placeholder="Ej: 6.96">
+                            </div>
+                            <small class="text-muted">Esta tasa se usará para la consolidación en USD.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-1"></i> Guardar Tasa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Tasas -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Historial Reciente</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="tablaHistorial" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Moneda Origen</th>
+                                    <th>Moneda Destino</th>
+                                    <th>Valor (BOB)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se carga dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/configuracion-tasas.js"></script>
