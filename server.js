@@ -1,5 +1,7 @@
 // server.js
 require('dotenv').config();
+// Asegurar que existan los directorios necesarios al iniciar la app
+require('./src/utils/initDirectories');
 const bodyParser = require('body-parser');
 const express = require('express');
 const session = require('express-session');

@@ -4,7 +4,8 @@ const path = require('path');
 function ensureDirectories() {
     const dirs = [
         'uploads',
-        'uploads/temp'
+        'uploads/temp',
+        'uploads/empresas'
     ];
     
     dirs.forEach(dir => {
