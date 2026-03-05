@@ -166,6 +166,7 @@ const usuariosRoutes = require('./src/routes/usuarios');
 const reportesRoutes = require('./src/routes/reportes');
 const documentosRoutes = require('./src/routes/documentos');
 const tasaCambioRoutes = require('./src/routes/tasaCambio');
+const excelUploadRoutes = require('./src/routes/excelUpload');
 
 app.use('/api', empresasRoutes);
 app.use('/api/monedas', monedasRoutes);
@@ -178,6 +179,7 @@ app.use('/api', consolidacionRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api', documentosRoutes);
 app.use('/api/tasacambio', tasaCambioRoutes);
+app.use('/api/excel', excelUploadRoutes);
 app.use('/empresas', empresasViewsRoutes);
 
 // Auth + Usuarios (solo admin)

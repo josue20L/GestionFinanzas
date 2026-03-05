@@ -35,6 +35,54 @@
     </div>
 </div>
 
+<!-- Tarjeta de Carga Excel -->
+<div class="card mb-4 border-success">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-file-earmark-excel me-2"></i> Carga Masiva desde Excel
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label for="excel-file" class="form-label">Seleccionar archivo Excel</label>
+                    <input type="file" class="form-control" id="excel-file" accept=".xlsx,.xls">
+                    <div class="form-text">
+                        Formato: Conceptos en filas, períodos en columnas (ej: ene-26, feb-26)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">Empresa</label>
+                    <div class="form-control-plaintext fw-bold" id="excel-empresa-nombre">
+                        Seleccione empresa arriba
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success w-100" id="btn-subir-excel" disabled>
+                    <i class="bi bi-upload me-2"></i> Subir y Procesar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Área de progreso y resultados -->
+        <div id="excel-progreso" style="display: none;">
+            <div class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="excel-progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div id="excel-mensaje" class="alert alert-info mb-0">
+                Procesando archivo...
+            </div>
+        </div>
+        
+        <!-- Resultados -->
+        <div id="excel-resultados" style="display: none;">
+            <!-- Se llenará dinámicamente -->
+        </div>
+    </div>
+</div>
+
 <!-- Contenedor principal para formularios (inicialmente oculto) -->
 <div id="formularios-container" style="display: none;">
     <!-- Navegación por tabs -->
@@ -111,3 +159,5 @@
 <script src="/js/flujo-operativo.js"></script>
 <script src="/js/flujo-corporativo.js"></script>
 <script src="/js/carga-mensual.js"></script>
+<!-- Excel Upload -->
+<script src="/js/excel-upload.js"></script>

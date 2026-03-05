@@ -1,0 +1,141 @@
+const XLSX = require('xlsx');
+const { parsePeriodo, mapearConceptoACampo, esConceptoValido, esPeriodoValido } = require('../utils/excelMappers');
+const EstadoResultado = require('../models/EstadoResultado');
+
+class ExcelUploadService {
+    static async procesarExcelEstadoResultados(filePath, idEmpresa) {
+        try {
+            console.log('📊 Procesando Excel de Estado de Resultados...');
+            
+            // Leer archivo Excel
+            const workbook = XLSX.readFile(filePath);
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(worksheet);
+            
+            if (data.length === 0) {
+                throw new Error('El archivo Excel está vacío');
+            }
+            
+            console.log(`📋 Se encontraron ${data.length} filas en el Excel`);
+            
+            // Identificar períodos (columnas que no son conceptos)
+            const headers = Object.keys(data[0]);
+            const periodos = headers.filter(header => esPeriodoValido(header));
+            
+            console.log(`📅 Se identificaron ${periodos.length} períodos: ${periodos.join(', ')}`);
+            
+            const resultados = {
+                procesados: 0,
+                insertados: 0,
+                actualizados: 0,
+                errores: [],
+                detalles: []
+            };
+            
+            // Procesar cada período
+            for (const periodo of periodos) {
+                try {
+                    const { año, mes } = parsePeriodo(periodo);
+                    if (!año || !mes) {
+                        resultados.errores.push(`Período inválido: ${periodo}`);
+                        continue;
+                    }
+                    
+                    // Crear o buscar período financiero
+                    const idPeriodo = await this.crearOBuscarPeriodo(idEmpresa, año, mes);
+                    
+                    // Extraer datos del período
+                    const datos = this.extraerDatosPeriodo(data, periodo);
+                    
+                    if (Object.keys(datos).length === 0) {
+                        resultados.errores.push(`No se encontraron datos válidos para período: ${periodo}`);
+                        continue;
+                    }
+                    
+                    // Guardar en BD
+                    const existente = await EstadoResultado.getByIdPeriodo(idPeriodo);
+                    const resultado = await EstadoResultado.createOrUpdate(idPeriodo, datos);
+                    
+                    if (existente) {
+                        resultados.actualizados++;
+                        resultados.detalles.push({
+                            periodo: `${año}-${mes.toString().padStart(2, '0')}`,
+                            accion: 'actualizado'
+                        });
+                    } else {
+                        resultados.insertados++;
+                        resultados.detalles.push({
+                            periodo: `${año}-${mes.toString().padStart(2, '0')}`,
+                            accion: 'insertado'
+                        });
+                    }
+                    
+                    resultados.procesados++;
+                    
+                } catch (error) {
+                    console.error(`Error procesando período ${periodo}:`, error);
+                    resultados.errores.push(`Error en período ${periodo}: ${error.message}`);
+                }
+            }
+            
+            console.log(`✅ Procesamiento completado: ${resultados.procesados} períodos`);
+            return resultados;
+            
+        } catch (error) {
+            console.error('Error general procesando Excel:', error);
+            throw error;
+        }
+    }
+    
+    static extraerDatosPeriodo(data, periodo) {
+        const datos = {};
+        
+        for (const row of data) {
+            const concepto = row['EERR'] || row['Concepto'] || '';
+            
+            if (!esConceptoValido(concepto)) {
+                continue; // Saltar filas que no son conceptos válidos
+            }
+            
+            const campo = mapearConceptoACampo(concepto);
+            const valor = parseFloat(row[periodo]) || 0;
+            
+            if (campo) {
+                datos[campo] = valor;
+            }
+        }
+        
+        return datos;
+    }
+    
+    static async crearOBuscarPeriodo(idEmpresa, año, mes) {
+        const db = require('../config/database');
+        
+        try {
+            // Buscar período existente
+            const [existente] = await db.query(
+                'SELECT ID_PERIODO FROM PERIODOFINANCIERO WHERE ID_EMPRESA = ? AND ANO = ? AND MES = ?',
+                [idEmpresa, año, mes]
+            );
+            
+            if (existente[0]) {
+                return existente[0].ID_PERIODO;
+            }
+            
+            // Crear nuevo período
+            const [resultado] = await db.query(
+                'INSERT INTO PERIODOFINANCIERO (ID_EMPRESA, ANO, MES) VALUES (?, ?, ?)',
+                [idEmpresa, año, mes]
+            );
+            
+            console.log(`📅 Período creado: Empresa ${idEmpresa}, ${año}-${mes.toString().padStart(2, '0')} (ID: ${resultado.insertId})`);
+            return resultado.insertId;
+            
+        } catch (error) {
+            throw new Error(`Error al crear/buscar período: ${error.message}`);
+        }
+    }
+}
+
+module.exports = ExcelUploadService;

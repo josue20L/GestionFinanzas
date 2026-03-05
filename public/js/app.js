@@ -8,10 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle sidebar en móviles
     const sidebar = document.getElementById('sidebar');
+    const sidebarCollapse = document.getElementById('sidebarCollapse');
+    
     if (sidebar) {
         const sidebarInstance = new bootstrap.Collapse(sidebar, {
             toggle: false
         });
+
+        // Botón de colapsar sidebar en móviles
+        if (sidebarCollapse) {
+            sidebarCollapse.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+        }
 
         // Mostrar/ocultar sidebar en móviles
         const sidebarToggle = document.querySelector('[data-bs-target="#sidebar"]');
