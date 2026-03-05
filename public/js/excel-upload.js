@@ -14,6 +14,11 @@ class ExcelUploadManager {
             this.handleFileSelect(e);
         });
 
+        // Cambio de tipo de estado
+        document.getElementById('tipo-estado').addEventListener('change', () => {
+            this.updateInstructions();
+        });
+
         // Botón de subir
         document.getElementById('btn-subir-excel').addEventListener('click', () => {
             this.uploadExcel();
@@ -74,9 +79,22 @@ class ExcelUploadManager {
         }
     }
 
+    updateInstructions() {
+        const tipoEstado = document.getElementById('tipo-estado').value;
+        const fileInput = document.getElementById('excel-file');
+        const formText = fileInput.parentElement.querySelector('.form-text');
+        
+        if (tipoEstado === 'BALANCE_GENERAL') {
+            formText.textContent = 'Formato: Conceptos en filas, períodos en columnas (ej: Disponible, Exigible, etc.)';
+        } else {
+            formText.textContent = 'Formato: Conceptos en filas, períodos en columnas (ej: ene-26, feb-26)';
+        }
+    }
+
     async uploadExcel() {
         const fileInput = document.getElementById('excel-file');
         const empresaSelect = document.getElementById('empresa-select');
+        const tipoEstado = document.getElementById('tipo-estado').value;
         const file = fileInput.files[0];
 
         if (!file) {
@@ -89,6 +107,11 @@ class ExcelUploadManager {
             return;
         }
 
+        if (!tipoEstado) {
+            this.showError('Por favor, seleccione un tipo de estado financiero');
+            return;
+        }
+
         // Mostrar progreso
         this.showProgress();
 
@@ -96,7 +119,12 @@ class ExcelUploadManager {
             const formData = new FormData();
             formData.append('excelFile', file);
 
-            const response = await fetch(`/api/excel/estado-resultados/${empresaSelect.value}`, {
+            // Seleccionar endpoint según el tipo
+            const endpoint = tipoEstado === 'BALANCE_GENERAL' 
+                ? `/api/excel/balance-general/${empresaSelect.value}`
+                : `/api/excel/estado-resultados/${empresaSelect.value}`;
+
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData
             });

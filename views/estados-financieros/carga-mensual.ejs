@@ -44,13 +44,23 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-4">
                 <div class="mb-3">
                     <label for="excel-file" class="form-label">Seleccionar archivo Excel</label>
                     <input type="file" class="form-control" id="excel-file" accept=".xlsx,.xls">
                     <div class="form-text">
                         Formato: Conceptos en filas, períodos en columnas (ej: ene-26, feb-26)
                     </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="tipo-estado" class="form-label">Tipo de Estado Financiero</label>
+                    <select class="form-select" id="tipo-estado">
+                        <option value="">Seleccione tipo</option>
+                        <option value="ESTADO_RESULTADOS">Estado de Resultados</option>
+                        <option value="BALANCE_GENERAL">Balance General</option>
+                    </select>
                 </div>
             </div>
             <div class="col-md-4">

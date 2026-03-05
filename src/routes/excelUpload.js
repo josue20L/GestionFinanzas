@@ -45,6 +45,11 @@ router.post('/estado-resultados/:idEmpresa',
     ExcelUploadController.uploadEstadoResultados
 );
 
+router.post('/balance-general/:idEmpresa', 
+    upload.single('excelFile'), 
+    ExcelUploadController.uploadBalanceGeneral
+);
+
 // Ruta para obtener formato esperado
 router.get('/formato/estado-resultados', 
     ExcelUploadController.getFormatoExcel

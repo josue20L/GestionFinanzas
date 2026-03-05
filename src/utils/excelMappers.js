@@ -1,4 +1,4 @@
-const MAPEO_CONCEPTOS = {
+const MAPEO_CONCEPTOS_ER = {
     'Venta Netas': 'ventas_netas',
     'Ventas Netas': 'ventas_netas',
     'Costo de Ventas': 'costo_ventas',
@@ -10,6 +10,21 @@ const MAPEO_CONCEPTOS = {
     'Gasto Financiero': 'gasto_financiero',
     'Otros Ingresos': 'otros_ingresos',
     'Otros Egresos': 'otros_egresos'
+};
+
+const MAPEO_CONCEPTOS_BG = {
+    'Disponible': 'disponible',
+    'Exigible': 'exigible',
+    'Realizable': 'realizable',
+    'Activo Fijo Tangible': 'activo_fijo_tangible',
+    'Activo Diferido': 'activo_diferido',
+    'Otros Activos': 'otros_activos',
+    'Pasivo Corriente': 'pasivo_corriente',
+    'Prevision Beneficios Sociales': 'prevision_beneficios_sociales',
+    'Obligaciones Bancarias': 'obligaciones_bancarias',
+    'Intereses por Pagar': 'intereses_por_pagar',
+    'Procesos Legales': 'procesos_legales',
+    'Patrimonio': 'patrimonio'
 };
 
 const MESES_MAP = {
@@ -62,12 +77,20 @@ function parsePeriodo(periodoStr) {
     return { año, mes };
 }
 
-function mapearConceptoACampo(concepto) {
-    return MAPEO_CONCEPTOS[concepto] || null;
+function mapearConceptoACampo(concepto, tipoEstado) {
+    if (tipoEstado === 'BALANCE_GENERAL') {
+        return MAPEO_CONCEPTOS_BG[concepto] || null;
+    } else {
+        return MAPEO_CONCEPTOS_ER[concepto] || null;
+    }
 }
 
-function esConceptoValido(concepto) {
-    return MAPEO_CONCEPTOS.hasOwnProperty(concepto);
+function esConceptoValido(concepto, tipoEstado) {
+    if (tipoEstado === 'BALANCE_GENERAL') {
+        return MAPEO_CONCEPTOS_BG.hasOwnProperty(concepto);
+    } else {
+        return MAPEO_CONCEPTOS_ER.hasOwnProperty(concepto);
+    }
 }
 
 function esPeriodoValido(header) {
@@ -75,7 +98,8 @@ function esPeriodoValido(header) {
 }
 
 module.exports = {
-    MAPEO_CONCEPTOS,
+    MAPEO_CONCEPTOS_ER,
+    MAPEO_CONCEPTOS_BG,
     MESES_MAP,
     parsePeriodo,
     mapearConceptoACampo,
