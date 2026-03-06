@@ -50,6 +50,16 @@ router.post('/balance-general/:idEmpresa',
     ExcelUploadController.uploadBalanceGeneral
 );
 
+router.post('/flujo-operativo/:idEmpresa', 
+    upload.single('excelFile'), 
+    ExcelUploadController.uploadFlujoOperativo
+);
+
+router.post('/flujo-corporativo/:idEmpresa', 
+    upload.single('excelFile'), 
+    ExcelUploadController.uploadFlujoCorporativo
+);
+
 // Ruta para obtener formato esperado
 router.get('/formato/estado-resultados', 
     ExcelUploadController.getFormatoExcel

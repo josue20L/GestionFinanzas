@@ -86,6 +86,10 @@ class ExcelUploadManager {
         
         if (tipoEstado === 'BALANCE_GENERAL') {
             formText.textContent = 'Formato: Conceptos en filas, períodos en columnas (ej: Disponible, Exigible, etc.)';
+        } else if (tipoEstado === 'FLUJO_OPERATIVO') {
+            formText.textContent = 'Formato: Conceptos en filas, períodos en columnas (ej: Ventas, Cartera, etc.)';
+        } else if (tipoEstado === 'FLUJO_CORPORATIVO') {
+            formText.textContent = 'Formato: Conceptos en filas, períodos en columnas (ej: Transferencia de Fondos, Inversiones, etc.)';
         } else {
             formText.textContent = 'Formato: Conceptos en filas, períodos en columnas (ej: ene-26, feb-26)';
         }
@@ -120,9 +124,16 @@ class ExcelUploadManager {
             formData.append('excelFile', file);
 
             // Seleccionar endpoint según el tipo
-            const endpoint = tipoEstado === 'BALANCE_GENERAL' 
-                ? `/api/excel/balance-general/${empresaSelect.value}`
-                : `/api/excel/estado-resultados/${empresaSelect.value}`;
+            let endpoint;
+            if (tipoEstado === 'FLUJO_CORPORATIVO') {
+                endpoint = `/api/excel/flujo-corporativo/${empresaSelect.value}`;
+            } else if (tipoEstado === 'FLUJO_OPERATIVO') {
+                endpoint = `/api/excel/flujo-operativo/${empresaSelect.value}`;
+            } else if (tipoEstado === 'BALANCE_GENERAL') {
+                endpoint = `/api/excel/balance-general/${empresaSelect.value}`;
+            } else {
+                endpoint = `/api/excel/estado-resultados/${empresaSelect.value}`;
+            }
 
             const response = await fetch(endpoint, {
                 method: 'POST',

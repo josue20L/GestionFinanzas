@@ -27,6 +27,41 @@ const MAPEO_CONCEPTOS_BG = {
     'Patrimonio': 'patrimonio'
 };
 
+const MAPEO_CONCEPTOS_FO = {
+    'Ventas': 'ventas',
+    'Ventas Exportacion': 'ventas_exportacion',
+    'Cartera': 'cartera',
+    'Transportes (Ingreso)': 'transportes_ing',
+    'Otros Ingresos': 'otros_ingresos',
+    'Gastos Administrativos': 'gastos_administrativos',
+    'Gastos Comerciales': 'gastos_comerciales',
+    'Gastos Produccion': 'gastos_produccion',
+    'Envios Cuenta Corporativa': 'envios_cuenta_corporativa',
+    'Impuestos': 'impuestos',
+    'Transportes (Egreso)': 'transportes_egr',
+    'Otros Gastos': 'otros_gastos',
+    'Saldo Anterior': 'saldo_anterior'
+};
+
+const MAPEO_CONCEPTOS_FC = {
+    'Transferencia de Fondos': 'transferencia_fondos',
+    'Desembolsos Bancarios': 'desembolsos_bancarios',
+    'Otros Ingresos': 'otros_ingresos',
+    'Prestamos Bancarios': 'prestamos_bancarios',
+    'Inversiones': 'inversiones',
+    'RPR Consultores': 'rpr_consultores',
+    'Bonos PLRS': 'bonos_plrs',
+    'Dividendos por Pagar': 'dividendos_pagar',
+    'Cuentas por Pagar': 'cuentas_pagar',
+    'Aguinaldos': 'aguinaldos',
+    'Finiquitos': 'finiquitos',
+    'Primas': 'primas',
+    'Retroactivos': 'retroactivos',
+    'IUE': 'iue',
+    'Otros Gastos': 'otros_gastos',
+    'Saldo Anterior': 'saldo_anterior'
+};
+
 const MESES_MAP = {
     // Español
     'ene': 1, 'ene.': 1, 'enero': 1,
@@ -80,6 +115,10 @@ function parsePeriodo(periodoStr) {
 function mapearConceptoACampo(concepto, tipoEstado) {
     if (tipoEstado === 'BALANCE_GENERAL') {
         return MAPEO_CONCEPTOS_BG[concepto] || null;
+    } else if (tipoEstado === 'FLUJO_OPERATIVO') {
+        return MAPEO_CONCEPTOS_FO[concepto] || null;
+    } else if (tipoEstado === 'FLUJO_CORPORATIVO') {
+        return MAPEO_CONCEPTOS_FC[concepto] || null;
     } else {
         return MAPEO_CONCEPTOS_ER[concepto] || null;
     }
@@ -88,18 +127,24 @@ function mapearConceptoACampo(concepto, tipoEstado) {
 function esConceptoValido(concepto, tipoEstado) {
     if (tipoEstado === 'BALANCE_GENERAL') {
         return MAPEO_CONCEPTOS_BG.hasOwnProperty(concepto);
+    } else if (tipoEstado === 'FLUJO_OPERATIVO') {
+        return MAPEO_CONCEPTOS_FO.hasOwnProperty(concepto);
+    } else if (tipoEstado === 'FLUJO_CORPORATIVO') {
+        return MAPEO_CONCEPTOS_FC.hasOwnProperty(concepto);
     } else {
         return MAPEO_CONCEPTOS_ER.hasOwnProperty(concepto);
     }
 }
 
 function esPeriodoValido(header) {
-    return header !== 'EERR' && header !== 'Concepto' && header.includes('-');
+    return header !== 'EERR' && header !== 'BALANCE' && header !== 'FO' && header !== 'FCORP' && header !== 'Concepto' && header.includes('-');
 }
 
 module.exports = {
     MAPEO_CONCEPTOS_ER,
     MAPEO_CONCEPTOS_BG,
+    MAPEO_CONCEPTOS_FO,
+    MAPEO_CONCEPTOS_FC,
     MESES_MAP,
     parsePeriodo,
     mapearConceptoACampo,
