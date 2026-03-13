@@ -1,106 +1,196 @@
 <div class="card">
+
     <div class="card-header d-flex justify-content-between align-items-center">
+
         <h5 class="mb-0">
+
             <i class="bi bi-building me-2"></i> Flujo Corporativo Consolidado
+
         </h5>
+
         <div>
+
             <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+
                 <i class="bi bi-printer me-1"></i> Imprimir
+
             </button>
+
             <button class="btn btn-sm btn-outline-success" onclick="window.exportAllConsolidacion && window.exportAllConsolidacion()">
+
                 <i class="bi bi-file-excel me-1"></i> Excel
+
             </button>
+
         </div>
+
     </div>
+
     <div class="card-body">
+
         <div class="table-responsive mb-4">
+
             <table class="table table-bordered" id="tabla-fc-periodos">
+
                 <thead>
+
                     <tr>
+
                         <th style="width: 40%;">Cuenta</th>
+
                         <th class="text-end" style="width: 20%;">Total</th>
+
                     </tr>
+
                 </thead>
+
                 <tbody>
+
     <tr data-key="TRANSFERENCIA_FONDOS"><td>Transferencia Fondos</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="DESEMBOLSOS_BANCARIOS"><td>Desembolsos Bancarios</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="OTROS_INGRESOS"><td>Otros Ingresos</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="TOTAL_INGRESOS" class="table-active"><td class="fw-bold">Total Ingresos</td><td class="text-end fw-bold">0.00</td></tr>
+
     <tr data-key="PRESTAMOS_BANCARIOS"><td>Préstamos Bancarios</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="INVERSIONES"><td>Inversiones</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="RPR_CONSULTORES"><td>RPR Consultores</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="BONOS_PLRS"><td>Bonos PLRS</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="DIVIDENDOS_PAGAR"><td>Dividendos a Pagar</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="CUENTAS_PAGAR"><td>Cuentas por Pagar</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="AGUINALDOS"><td>Aguinaldos</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="FINIQUITOS"><td>Finiquitos</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="PRIMAS"><td>Primas</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="RETROACTIVOS"><td>Retroactivos</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="IUE"><td>IUE</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="OTROS_GASTOS"><td>Otros Gastos</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="TOTAL_EGRESOS" class="table-active"><td class="fw-bold">Total Egresos</td><td class="text-end fw-bold">0.00</td></tr>
+
     <tr data-key="SALDO_ANTERIOR"><td>Saldo Anterior</td><td class="text-end">0.00</td></tr>
+
     <tr data-key="SALDO_ACTUAL" class="table-success"><td class="fw-bold">Saldo Actual</td><td class="text-end fw-bold">0.00</td></tr>
+
 </tbody>
+
             </table>
+
         </div>
+
     </div>
+
 </div>
 
+
+
 <script>
+
 function actualizarTablaFlujoCorporativo(datos) {
+
     const tabla = document.getElementById('tabla-fc-periodos');
+
     if (!tabla || !datos) return;
 
+
+
     const headRow = tabla.querySelector('thead tr');
+
     const cuentaTh = headRow.querySelectorAll('th')[0];
+
     const totalTh = headRow.querySelectorAll('th')[1];
+
     headRow.innerHTML = '';
+
     if (cuentaTh) headRow.appendChild(cuentaTh);
 
+
+
     (datos.periodos || []).forEach((p) => {
+
         const th = document.createElement('th');
+
         th.className = 'text-end';
+
         th.textContent = p;
+
         headRow.appendChild(th);
+
     });
+
+
 
     if (totalTh) headRow.appendChild(totalTh);
 
+
+
     const rows = tabla.querySelectorAll('tbody tr[data-key]');
+
     rows.forEach((tr) => {
+
         const key = tr.getAttribute('data-key');
+
         const series = (datos.series && datos.series[key]) ? datos.series[key] : [];
+
         const total = series.reduce((a, b) => a + (Number(b) || 0), 0);
 
+
+
         const tds = tr.querySelectorAll('td');
+
         const cuentaTd = tds[0];
+
         const totalTd = tds[1];
 
+
+
         tr.innerHTML = '';
+
         if (cuentaTd) tr.appendChild(cuentaTd);
 
+
+
         (datos.periodos || []).forEach((_, idx) => {
+
             const td = document.createElement('td');
+
             td.className = 'text-end';
-            const valor = series[idx] || 0;
-            td.setAttribute('data-valor-bob', valor);
-            td.textContent = formatNumber(valor);
+
+            td.textContent = formatNumber(series[idx] || 0);
+
             tr.appendChild(td);
+
         });
 
+
+
         if (totalTd) {
-            totalTd.setAttribute('data-valor-bob', total);
+
             totalTd.textContent = formatNumber(total);
+
             tr.appendChild(totalTd);
+
         }
+
     });
 
-    // Notificar al CurrencyManager
-    if (window.CurrencyManager) {
-        window.CurrencyManager.actualizarValoresEnTablas();
-    }
 }
 
+
+
 window.actualizarTablaFlujoCorporativo = actualizarTablaFlujoCorporativo;
+
 </script>
+

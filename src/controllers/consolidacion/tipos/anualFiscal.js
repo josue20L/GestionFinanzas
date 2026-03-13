@@ -3,12 +3,17 @@ const FlujoOperativo = require('../../../models/FlujoOperativo');
 const FlujoCorporativo = require('../../../models/FlujoCorporativo');
 const BalanceGeneral = require('../../../models/BalanceGeneral');
 
+const FlujoOperativoService = require('../flujoOperativoService');
+const FlujoCorporativoService = require('../flujoCorporativoService');
+
 /**
  * Servicio para consolidación anual fiscal
  */
 class AnualFiscalService {
     constructor() {
         this.estadoResultadosService = new EstadoResultadosService();
+        this.flujoOperativoService = new FlujoOperativoService();
+        this.flujoCorporativoService = new FlujoCorporativoService();
     }
 
     inicializarDatosPorPeriodoGenerico() {
@@ -168,8 +173,8 @@ class AnualFiscalService {
 
             this.estadoResultadosService.agregarPeriodo(datosPorPeriodo, anioFiscalKey, datosAnual);
 
-            this.agregarPeriodoGenerico(datosPorPeriodoFO, anioFiscalKey, this.consolidarRows(foRowsAnio));
-            this.agregarPeriodoGenerico(datosPorPeriodoFC, anioFiscalKey, this.consolidarRows(fcRowsAnio));
+            this.agregarPeriodoGenerico(datosPorPeriodoFO, anioFiscalKey, this.flujoOperativoService.consolidarDatos(foRowsAnio));
+            this.agregarPeriodoGenerico(datosPorPeriodoFC, anioFiscalKey, this.flujoCorporativoService.consolidarDatos(fcRowsAnio));
 
             const ultimoMes = meses[meses.length - 1];
             if (ultimoMes) {

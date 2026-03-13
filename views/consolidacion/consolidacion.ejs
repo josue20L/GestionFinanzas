@@ -1,156 +1,270 @@
 <h2 class="mb-4">Consolidación</h2>
 
+
+
 <!-- CSS personalizado para tabs -->
+
 <link rel="stylesheet" href="/css/carga-mensual.css">
 
+
+
 <!-- Selectores de rango y empresas -->
+
 <div class="card mb-4">
+
     <div class="card-body">
+
         <div class="row g-3">
+
             <!-- Tipo de Período -->
+
             <div class="col-md-3">
+
                 <label for="tipo-periodo" class="form-label">Tipo de Período</label>
+
                 <select id="tipo-periodo" class="form-select">
+
                     <option value="mensual">Mensual</option>
+
                     <option value="trimestral">Trimestral</option>
+
                     <option value="anual-fiscal">Anual Fiscal</option>
+
                 </select>
+
             </div>
+
+
 
             <!-- Desde -->
+
             <div class="col-md-3" id="desde-container">
+
                 <!-- Se llenará dinámicamente -->
+
             </div>
+
+
 
             <!-- Hasta -->
+
             <div class="col-md-3" id="hasta-container">
+
                 <!-- Se llenará dinámicamente -->
+
             </div>
+
+
 
             <!-- Botones -->
+
             <div class="col-md-3 d-flex align-items-end">
+
                 <div class="btn-group w-100">
+
                     <button type="button" class="btn btn-primary" id="btn-generar-consolidacion">
+
                         <i class="bi bi-clipboard-data me-2"></i> Generar
+
                     </button>
+
                     <button type="button" class="btn btn-outline-secondary">
+
                         <i class="bi bi-arrow-clockwise me-2"></i> Actualizar
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
 
-        <!-- Selector de Moneda de Visualización -->
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <div class="btn-group" role="group" aria-label="Selector de Moneda">
-                    <input type="radio" class="btn-check" name="btnradio" id="moneda-bob" autocomplete="off" checked>
-                    <label class="btn btn-outline-primary" for="moneda-bob">
-                        <i class="bi bi-currency-exchange me-1"></i> Ver en BOB
-                    </label>
 
-                    <input type="radio" class="btn-check" name="btnradio" id="moneda-usd" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="moneda-usd">
-                        <i class="bi bi-currency-dollar me-1"></i> Ver en USD
-                    </label>
-                </div>
-                <span id="tasa-info" class="ms-3 text-muted small" style="display: none;">
-                    Tasa: 1 USD = <span id="tasa-valor">0.00</span> BOB
-                </span>
-            </div>
-        </div>
 
         <!-- Información del período seleccionado -->
+
         <div class="alert alert-info mt-3" id="info-periodo" style="display: none;">
+
             <i class="bi bi-info-circle me-2"></i>
+
             <span id="texto-info-periodo"></span>
+
         </div>
+
         
+
         <!-- Selección de empresas -->
+
         <div class="form-group mt-3">
+
             <label class="form-label">Seleccionar Empresas</label>
+
             <div class="border rounded p-3" style="max-height: 150px; overflow-y: auto;" id="empresas-checklist">
+
                 <!-- Las empresas se cargarán dinámicamente desde la API -->
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+
+
 
 <script src="/js/consolidacion/utils/formatNumber.js"></script>
+
 <script src="/js/consolidacion/utils/validation.js"></script>
+
 <script src="/js/consolidacion/periodConverter.js"></script>
+
 <script src="/js/consolidacion/apiService.js"></script>
-<script src="/js/consolidacion/currencyManager.js"></script>
+
 <script src="/js/consolidacion/uiManager.js"></script>
+
 <script src="/js/consolidacion/exportToExcel.js"></script>
+
 <script src="/js/reportes/consolidacion-reportes.js"></script>
+
 <script src="/js/consolidacion.js"></script>
 
+
+
 <!-- Contenedor para los formularios consolidados -->
+
 <div id="formularios-container">
+
     <!-- Tabs para seleccionar formulario -->
+
     <ul class="nav nav-tabs mb-4" id="formulariosTabs" role="tablist">
+
         <li class="nav-item" role="presentation">
+
             <button class="nav-link active" id="tab-estado-resultados" data-bs-toggle="tab" data-bs-target="#estado-resultados" type="button" role="tab">
+
                 <i class="bi bi-graph-up-arrow me-2"></i> 
+
                 <span class="fw-bold">ESTADO DE RESULTADOS</span>
+
             </button>
+
         </li>
+
         <li class="nav-item" role="presentation">
+
             <button class="nav-link" id="tab-balance-general" data-bs-toggle="tab" data-bs-target="#balance-general" type="button" role="tab">
+
                 <i class="bi bi-bank2 me-2"></i> 
+
                 <span class="fw-bold">BALANCE GENERAL</span>
+
             </button>
+
         </li>
+
         <li class="nav-item" role="presentation">
+
             <button class="nav-link" id="tab-flujo-operativo" data-bs-toggle="tab" data-bs-target="#flujo-operativo" type="button" role="tab">
+
                 <i class="bi bi-cash-coin me-2"></i> 
+
                 <span class="fw-bold">FLUJO OPERATIVO</span>
+
             </button>
+
         </li>
+
         <li class="nav-item" role="presentation">
+
             <button class="nav-link" id="tab-flujo-corporativo" data-bs-toggle="tab" data-bs-target="#flujo-corporativo" type="button" role="tab">
+
                 <i class="bi bi-building2 me-2"></i> 
+
                 <span class="fw-bold">FLUJO CORPORATIVO</span>
+
             </button>
+
         </li>
+
     </ul>
 
+
+
     <!-- Contenido de los tabs -->
+
     <div class="tab-content" id="formulariosTabContent">
+
         <!-- Estado de Resultados Consolidado -->
+
         <div class="tab-pane fade show active" id="estado-resultados" role="tabpanel">
+
             <%- include('consolidado-estado-resultados') %>
+
         </div>
+
         
+
         <!-- Balance General Consolidado -->
+
         <div class="tab-pane fade" id="balance-general" role="tabpanel">
+
             <%- include('consolidado-balance-general') %>
+
         </div>
+
         
+
         <!-- Flujo Operativo Consolidado -->
+
         <div class="tab-pane fade" id="flujo-operativo" role="tabpanel">
+
             <%- include('consolidado-flujo-operativo') %>
+
         </div>
+
         
+
         <!-- Flujo Corporativo Consolidado -->
+
         <div class="tab-pane fade" id="flujo-corporativo" role="tabpanel">
+
             <%- include('consolidado-flujo-corporativo') %>
+
         </div>
+
     </div>
+
     
+
     <!-- Botones de acción -->
+
     <div class="card mt-4">
+
         <div class="card-body d-flex justify-content-between align-items-center">
+
             <div class="text-muted fw-bold">Datos consolidados de <span id="empresas-count">0</span> empresas</div>
+
             <div class="btn-group">
+
                 <button type="button" class="btn btn-outline-success" onclick="window.exportAllConsolidacion && window.exportAllConsolidacion()">
+
                     <i class="bi bi-download me-2"></i> Exportar a Excel
+
                 </button>
+
                 <button type="button" class="btn btn-primary">
+
                     <i class="bi bi-printer me-2"></i> Imprimir Reporte
+
                 </button>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+

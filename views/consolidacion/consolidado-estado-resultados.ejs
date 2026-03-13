@@ -1,426 +1,758 @@
 <div class="card">
+
     <div class="card-header d-flex justify-content-between align-items-center">
+
         <h5 class="mb-0">
+
             <i class="bi bi-graph-up me-2"></i> Estado de Resultados Consolidado
+
         </h5>
+
         <div>
+
             <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+
                 <i class="bi bi-printer me-1"></i> Imprimir
+
             </button>
+
             <button class="btn btn-sm btn-outline-success" onclick="window.exportAllConsolidacion && window.exportAllConsolidacion()">
+
                 <i class="bi bi-file-excel me-1"></i> Excel
+
             </button>
+
         </div>
+
     </div>
+
     <div class="card-body p-0">
+
         <div class="table-responsive">
+
             <table class="table table-bordered table-sm mb-0" id="tabla-consolidado">
+
                 <thead class="table-light">
+
                     <tr>
+
                         <th style="width: 35%;">Concepto</th>
+
                         <!-- Las columnas de períodos se generarán dinámicamente -->
+
                         <th class="text-center" style="width: 10%;">Total</th>
+
                     </tr>
+
                 </thead>
+
                 <tbody>
-            <!-- Ventas Netas -->
+
+                    <!-- Ventas Netas -->
+
                     <tr>
+
                         <td class="fw-bold">Ventas Netas</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end fw-bold" id="total-ventas-netas" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end fw-bold" id="total-ventas-netas">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Costo de Ventas -->
+
                     <tr>
+
                         <td class="ps-4">Costo de Ventas</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-costo-ventas" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-costo-ventas">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Utilidad Bruta -->
+
                     <tr class="table-active">
+
                         <td class="fw-bold">Utilidad Bruta</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end fw-bold" id="total-utilidad-bruta" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end fw-bold" id="total-utilidad-bruta">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Gastos Operativos -->
+
                     <tr>
+
                         <td class="ps-4">Gasto Administrativo</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-gasto-administrativo" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-gasto-administrativo">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Gasto Comercialización -->
+
                     <tr>
+
                         <td class="ps-4">Gasto Comercialización</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-gasto-comercializacion" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-gasto-comercializacion">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Gasto SIG -->
+
                     <tr>
+
                         <td class="ps-4">Gasto SIG</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-gasto-sig" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-gasto-sig">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Total Gastos Operativos -->
+
                     <tr class="table-active">
+
                         <td class="fw-bold">Gasto Operativo</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end fw-bold" id="total-gasto-operativo" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end fw-bold" id="total-gasto-operativo">0.00</td>
+
                     </tr>
+
+
 
                     <!-- EBIT -->
+
                     <tr class="table-active">
+
                         <td class="fw-bold">EBIT</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end fw-bold" id="total-ebit" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end fw-bold" id="total-ebit">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Gasto Tributario -->
+
                     <tr>
+
                         <td>Gasto Tributario</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-gasto-tributario" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-gasto-tributario">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Gasto Financiero -->
+
                     <tr>
+
                         <td>Gasto Financiero</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-gasto-financiero" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-gasto-financiero">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Utilidad Después de Impuestos -->
+
                     <tr class="table-active">
+
                         <td class="fw-bold">Utilidad Después de Impuestos</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end fw-bold" id="total-utilidad-despues-impuestos" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end fw-bold" id="total-utilidad-despues-impuestos">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Otros Ingresos -->
+
                     <tr>
+
                         <td>Otros Ingresos</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-otros-ingresos" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-otros-ingresos">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Otros Egresos -->
+
                     <tr>
+
                         <td>Otros Egresos</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end" id="total-otros-egresos" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end" id="total-otros-egresos">0.00</td>
+
                     </tr>
+
+
 
                     <!-- Utilidad Neta -->
+
                     <tr class="table-success">
+
                         <td class="fw-bold">UTILIDAD NETA</td>
+
                         <!-- Los valores por período se insertarán aquí -->
-                        <td class="text-end fw-bold" id="total-utilidad-neta" data-valor-bob="0">0.00</td>
+
+                        <td class="text-end fw-bold" id="total-utilidad-neta">0.00</td>
+
                     </tr>
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
+
 </div>
 
+
+
 <script>
+
 // Función para actualizar la tabla con datos de consolidación
+
 function actualizarTablaConsolidacion(datos) {
+
     if (!datos || !datos.periodos || !Array.isArray(datos.periodos)) {
+
         console.error('Datos de consolidación no válidos');
+
         return;
+
     }
+
+
 
     const tabla = document.getElementById('tabla-consolidado');
+
     const thead = tabla.querySelector('thead tr');
+
     const tbody = tabla.querySelector('tbody');
 
+
+
     // Limpiar columnas de períodos existentes (excepto Concepto y Total)
+
     while (thead.children.length > 2) {
+
         thead.removeChild(thead.children[1]);
+
     }
+
+
 
     // Agregar columnas para cada período
+
     datos.periodos.forEach((periodo, index) => {
+
         const th = document.createElement('th');
+
         th.className = 'text-center';
+
         th.textContent = periodo;
+
         thead.insertBefore(th, thead.lastElementChild);
+
     });
+
+
 
     // Actualizar cada fila con los valores por período
+
     const filas = tbody.querySelectorAll('tr');
+
     filas.forEach((fila, filaIndex) => {
+
         // Limpiar celdas de períodos existentes
+
         while (fila.children.length > 2) {
+
             fila.removeChild(fila.children[1]);
+
         }
 
+
+
         // Agregar celdas para cada período
+
         datos.periodos.forEach((periodo, periodoIndex) => {
+
             const td = document.createElement('td');
+
             td.className = 'text-end';
+
             
+
             // Obtener el valor según la fila
+
             const valor = obtenerValorPorFila(filaIndex, periodoIndex, datos);
-            td.setAttribute('data-valor-bob', valor);
+
             td.textContent = formatNumber(valor);
+
             
+
             fila.insertBefore(td, fila.lastElementChild);
+
         });
+
     });
 
+
+
     // Actualizar totales
+
     actualizarTotales(datos);
 
-    // Notificar al CurrencyManager para que aplique la moneda actual
-    if (window.CurrencyManager) {
-        window.CurrencyManager.actualizarValoresEnTablas();
-    }
 }
+
+
 
 // Función para obtener el valor según la fila y período
+
 function obtenerValorPorFila(filaIndex, periodoIndex, datos) {
+
     const valores = {
+
         0: datos.ventasNetas?.[periodoIndex] || 0,  // Ventas Netas
+
         1: datos.costoVentas?.[periodoIndex] || 0,  // Costo de Ventas
+
         2: (datos.ventasNetas?.[periodoIndex] || 0) - (datos.costoVentas?.[periodoIndex] || 0),  // Utilidad Bruta
+
         3: datos.gastoAdministrativo?.[periodoIndex] || 0,  // Gasto Administrativo
+
         4: datos.gastoComercializacion?.[periodoIndex] || 0,  // Gasto Comercialización
+
         5: datos.gastoSig?.[periodoIndex] || 0,  // Gasto SIG
+
         6: (datos.gastoAdministrativo?.[periodoIndex] || 0) + (datos.gastoComercializacion?.[periodoIndex] || 0) + (datos.gastoSig?.[periodoIndex] || 0),  // Gasto Operativo
+
         7: datos.ebit?.[periodoIndex] || 0,  // EBIT
+
         8: datos.gastoTributario?.[periodoIndex] || 0,  // Gasto Tributario
+
         9: datos.gastoFinanciero?.[periodoIndex] || 0,  // Gasto Financiero
+
         10: (datos.ebit?.[periodoIndex] || 0) - (datos.gastoTributario?.[periodoIndex] || 0) - (datos.gastoFinanciero?.[periodoIndex] || 0),  // Utilidad Después de Impuestos
+
         11: datos.otrosIngresos?.[periodoIndex] || 0,  // Otros Ingresos
+
         12: datos.otrosEgresos?.[periodoIndex] || 0,  // Otros Egresos
+
         13: ((datos.ebit?.[periodoIndex] || 0) - (datos.gastoTributario?.[periodoIndex] || 0) - (datos.gastoFinanciero?.[periodoIndex] || 0)) + (datos.otrosIngresos?.[periodoIndex] || 0) - (datos.otrosEgresos?.[periodoIndex] || 0)  // Utilidad Neta
+
     };
+
     
+
     return valores[filaIndex] || 0;
+
 }
+
+
 
 // Función para actualizar los totales
+
 function actualizarTotales(datos) {
+
     // Calcular totales
+
     const totalVentasNetas = datos.ventasNetas?.reduce((a, b) => a + b, 0) || 0;
+
     const totalCostoVentas = datos.costoVentas?.reduce((a, b) => a + b, 0) || 0;
+
     const totalUtilidadBruta = totalVentasNetas - totalCostoVentas;
+
     const totalGastoAdministrativo = datos.gastoAdministrativo?.reduce((a, b) => a + b, 0) || 0;
+
     const totalGastoComercializacion = datos.gastoComercializacion?.reduce((a, b) => a + b, 0) || 0;
+
     const totalGastoSig = datos.gastoSig?.reduce((a, b) => a + b, 0) || 0;
+
     const totalGastoOperativo = totalGastoAdministrativo + totalGastoComercializacion + totalGastoSig;
+
     const totalEbit = datos.ebit?.reduce((a, b) => a + b, 0) || 0;
+
     const totalGastoTributario = datos.gastoTributario?.reduce((a, b) => a + b, 0) || 0;
+
     const totalGastoFinanciero = datos.gastoFinanciero?.reduce((a, b) => a + b, 0) || 0;
+
     const totalUtilidadDespuesImpuestos = totalEbit - totalGastoTributario - totalGastoFinanciero;
+
     const totalOtrosIngresos = datos.otrosIngresos?.reduce((a, b) => a + b, 0) || 0;
+
     const totalOtrosEgresos = datos.otrosEgresos?.reduce((a, b) => a + b, 0) || 0;
+
     const totalUtilidadNeta = totalUtilidadDespuesImpuestos + totalOtrosIngresos - totalOtrosEgresos;
 
+
+
     // Actualizar celdas de totales
-    const elemVentas = document.getElementById('total-ventas-netas');
-    elemVentas.setAttribute('data-valor-bob', totalVentasNetas);
-    elemVentas.textContent = formatNumber(totalVentasNetas);
 
-    const elemCosto = document.getElementById('total-costo-ventas');
-    elemCosto.setAttribute('data-valor-bob', totalCostoVentas);
-    elemCosto.textContent = formatNumber(totalCostoVentas);
+    document.getElementById('total-ventas-netas').textContent = formatNumber(totalVentasNetas);
 
-    const elemUtilidadBruta = document.getElementById('total-utilidad-bruta');
-    elemUtilidadBruta.setAttribute('data-valor-bob', totalUtilidadBruta);
-    elemUtilidadBruta.textContent = formatNumber(totalUtilidadBruta);
+    document.getElementById('total-costo-ventas').textContent = formatNumber(totalCostoVentas);
 
-    const elemGastoAdmin = document.getElementById('total-gasto-administrativo');
-    elemGastoAdmin.setAttribute('data-valor-bob', totalGastoAdministrativo);
-    elemGastoAdmin.textContent = formatNumber(totalGastoAdministrativo);
+    document.getElementById('total-utilidad-bruta').textContent = formatNumber(totalUtilidadBruta);
 
-    const elemGastoComer = document.getElementById('total-gasto-comercializacion');
-    elemGastoComer.setAttribute('data-valor-bob', totalGastoComercializacion);
-    elemGastoComer.textContent = formatNumber(totalGastoComercializacion);
+    document.getElementById('total-gasto-administrativo').textContent = formatNumber(totalGastoAdministrativo);
 
-    const elemGastoSig = document.getElementById('total-gasto-sig');
-    elemGastoSig.setAttribute('data-valor-bob', totalGastoSig);
-    elemGastoSig.textContent = formatNumber(totalGastoSig);
+    document.getElementById('total-gasto-comercializacion').textContent = formatNumber(totalGastoComercializacion);
 
-    const elemGastoOperativo = document.getElementById('total-gasto-operativo');
-    elemGastoOperativo.setAttribute('data-valor-bob', totalGastoOperativo);
-    elemGastoOperativo.textContent = formatNumber(totalGastoOperativo);
+    document.getElementById('total-gasto-sig').textContent = formatNumber(totalGastoSig);
 
-    const elemEbit = document.getElementById('total-ebit');
-    elemEbit.setAttribute('data-valor-bob', totalEbit);
-    elemEbit.textContent = formatNumber(totalEbit);
+    document.getElementById('total-gasto-operativo').textContent = formatNumber(totalGastoOperativo);
 
-    const elemGastoTrib = document.getElementById('total-gasto-tributario');
-    elemGastoTrib.setAttribute('data-valor-bob', totalGastoTributario);
-    elemGastoTrib.textContent = formatNumber(totalGastoTributario);
+    document.getElementById('total-ebit').textContent = formatNumber(totalEbit);
 
-    const elemGastoFin = document.getElementById('total-gasto-financiero');
-    elemGastoFin.setAttribute('data-valor-bob', totalGastoFinanciero);
-    elemGastoFin.textContent = formatNumber(totalGastoFinanciero);
+    document.getElementById('total-gasto-tributario').textContent = formatNumber(totalGastoTributario);
 
-    const elemUtilDespImp = document.getElementById('total-utilidad-despues-impuestos');
-    elemUtilDespImp.setAttribute('data-valor-bob', totalUtilidadDespuesImpuestos);
-    elemUtilDespImp.textContent = formatNumber(totalUtilidadDespuesImpuestos);
+    document.getElementById('total-gasto-financiero').textContent = formatNumber(totalGastoFinanciero);
 
-    const elemOtrosIng = document.getElementById('total-otros-ingresos');
-    elemOtrosIng.setAttribute('data-valor-bob', totalOtrosIngresos);
-    elemOtrosIng.textContent = formatNumber(totalOtrosIngresos);
+    document.getElementById('total-utilidad-despues-impuestos').textContent = formatNumber(totalUtilidadDespuesImpuestos);
 
-    const elemOtrosEgr = document.getElementById('total-otros-egresos');
-    elemOtrosEgr.setAttribute('data-valor-bob', totalOtrosEgresos);
-    elemOtrosEgr.textContent = formatNumber(totalOtrosEgresos);
+    document.getElementById('total-otros-ingresos').textContent = formatNumber(totalOtrosIngresos);
 
-    const elemUtilNeta = document.getElementById('total-utilidad-neta');
-    elemUtilNeta.setAttribute('data-valor-bob', totalUtilidadNeta);
-    elemUtilNeta.textContent = formatNumber(totalUtilidadNeta);
+    document.getElementById('total-otros-egresos').textContent = formatNumber(totalOtrosEgresos);
+
+    document.getElementById('total-utilidad-neta').textContent = formatNumber(totalUtilidadNeta);
+
 }
 
+
+
 // Función para formatear números
+
 const formatNumber = (typeof window !== 'undefined' && typeof window.formatNumber === 'function')
+
     ? window.formatNumber
+
     : function(num) {
+
         return new Intl.NumberFormat('en-US', {
+
             minimumFractionDigits: 2,
+
             maximumFractionDigits: 2,
+
             useGrouping: true
+
         }).format(num || 0);
+
     };
 
+
+
 // Función para exportar a Excel (CSV simple) usando los últimos datos consolidados
+
 function exportToExcel() {
+
     const dataWrapper = window.consolidacionDatosUltimos;
+
     const datos = dataWrapper && dataWrapper.datosPorPeriodo ? dataWrapper.datosPorPeriodo : null;
+
     if (!datos || !Array.isArray(datos.periodos) || !datos.periodos.length) {
+
         alert('No hay datos de consolidación para exportar.');
+
         return;
+
     }
+
+
 
     const periodos = datos.periodos;
 
+
+
     const conceptos = [
+
         'Ventas Netas',
+
         'Costo de Ventas',
+
         'Utilidad Bruta',
+
         'Gasto Administrativo',
+
         'Gasto Comercialización',
+
         'Gasto SIG',
+
         'Gasto Operativo',
+
         'EBIT',
+
         'Gasto Tributario',
+
         'Gasto Financiero',
+
         'Utilidad Después de Impuestos',
+
         'Otros Ingresos',
+
         'Otros Egresos',
+
         'Utilidad Neta'
+
     ];
 
+
+
     const filas = [];
+
     const encabezado = ['Concepto', ...periodos, 'Total'];
+
     filas.push(encabezado.join(','));
 
+
+
     for (let filaIndex = 0; filaIndex < conceptos.length; filaIndex++) {
+
         const row = [conceptos[filaIndex]];
+
         let totalFila = 0;
 
+
+
         periodos.forEach((_, periodoIndex) => {
+
             const valor = obtenerValorPorFila(filaIndex, periodoIndex, datos) || 0;
+
             totalFila += valor;
+
             row.push(String(valor).replace(/,/g, '.'));
+
         });
 
+
+
         row.push(String(totalFila).replace(/,/g, '.'));
+
         filas.push(row.join(','));
+
     }
+
+
 
     const csvContent = filas.join('\n');
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement('a');
+
     a.href = url;
+
     a.download = 'consolidacion-estado-resultados.csv';
+
     document.body.appendChild(a);
+
     a.click();
+
     document.body.removeChild(a);
+
     URL.revokeObjectURL(url);
+
 }
+
+
 
 // Datos mock para prueba
+
 const datosMock = {
+
     periodos: ['Abr-16', 'May-16', 'Jun-16', 'Jul-16', 'Ago-16', 'Sep-16', 'Oct-16', 'Nov-16', 'Dic-16', 'Ene-17', 'Feb-17', 'Mar-17'],
+
     ventasNetas: [220000, 235000, 198000, 242000, 268000, 289000, 312000, 298000, 325000, 278000, 301000, 324000],
+
     costoVentas: [132000, 141000, 118800, 145200, 160800, 173400, 187200, 178800, 195000, 166800, 180600, 194400],
+
     gastoAdministrativo: [22000, 23500, 19800, 24200, 26800, 28900, 31200, 29800, 32500, 27800, 30100, 32400],
+
     gastoComercializacion: [11000, 11750, 9900, 12100, 13400, 14450, 15600, 14900, 16250, 13900, 15050, 16200],
+
     gastoSig: [4400, 4700, 3960, 4840, 5360, 5780, 6240, 5960, 6500, 5560, 6020, 6480],
+
     ebit: [50400, 54050, 45540, 55660, 61640, 66470, 71760, 68540, 74750, 63740, 69230, 74480],
+
     gastoTributario: [7560, 8108, 6831, 8349, 9246, 9971, 10764, 10281, 11213, 9561, 10385, 11172],
+
     gastoFinanciero: [2520, 2703, 2277, 2783, 3082, 3324, 3588, 3427, 3738, 3187, 3462, 3724],
+
     otrosIngresos: [2200, 2350, 1980, 2420, 2680, 2890, 3120, 2980, 3250, 2780, 3010, 3240],
+
     otrosEgresos: [1320, 1410, 1188, 1452, 1608, 1734, 1872, 1788, 1950, 1668, 1806, 1944]
+
 };
 
+
+
 // Cargar datos mock al iniciar la página
+
 document.addEventListener('DOMContentLoaded', function() {
+
     // Comentado para usar datos reales
+
     /*
+
     setTimeout(() => {
+
         actualizarTablaConsolidacion(datosMock);
+
     }, 100);
+
     */
+
 });
 
+
+
 // Exponer la función globalmente para que pueda ser llamada desde el controlador
+
 window.actualizarTablaConsolidacion = actualizarTablaConsolidacion;
+
 </script>
 
+
+
 <style>
+
 #tabla-consolidado {
+
     font-size: 0.9rem;
+
 }
 
+
+
 #tabla-consolidado th {
+
     white-space: nowrap;
+
     vertical-align: middle;
+
     background-color: #f8f9fa;
+
 }
+
+
 
 #tabla-consolidado td, 
+
 #tabla-consolidado th {
+
     padding: 0.5rem;
+
 }
+
+
 
 #tabla-consolidado .table-active {
+
     background-color: rgba(0, 0, 0, 0.05);
+
 }
+
+
 
 #tabla-consolidado .table-success {
+
     background-color: rgba(25, 135, 84, 0.1);
+
 }
+
+
 
 .ps-4 {
+
     padding-left: 1.5rem !important;
+
 }
+
+
 
 .text-end {
+
     text-align: right !important;
+
 }
+
+
 
 .fw-bold {
+
     font-weight: 600 !important;
+
 }
 
+
+
 @media (max-width: 768px) {
+
     .table-responsive {
+
         font-size: 0.8rem;
+
     }
+
     
+
     .table td, .table th {
+
         padding: 0.3rem;
+
     }
+
 }
+
 </style>
+

@@ -26,14 +26,15 @@ class FlujoCorporativoService {
     }
 
     /**
-     * Consolida (suma) los datos de multiples registros de flujo corporativo
+     * Consolida los datos de flujo corporativo aplicando las reglas de negocio
      * @param {Array} rows - Registros de flujo corporativo
-     * @returns {Object} Datos consolidados
+     * @returns {Object} Datos consolidados con campos calculados
      */
     consolidarDatos(rows) {
         const totals = {};
         if (!Array.isArray(rows)) return totals;
 
+        // Primero sumar los campos base (no calculados)
         for (const row of rows) {
             if (!row) continue;
             for (const [key, value] of Object.entries(row)) {
@@ -43,17 +44,53 @@ class FlujoCorporativoService {
                     key === 'ID_EMPRESA' ||
                     key === 'ANO' ||
                     key === 'MES' ||
-                    key === 'periodo'
+                    key === 'periodo' ||
+                    key === 'TOTAL_INGRESOS' ||  // Campos calculados que se ignoran
+                    key === 'TOTAL_EGRESOS' ||
+                    key === 'SALDO_ACTUAL'
                 ) {
                     continue;
                 }
 
                 const n = Number(value);
                 if (Number.isFinite(n)) {
-                    totals[key] = (totals[key] || 0) + n;
+                    // SALDO_ANTERIOR es estado_inicio -> tomar valor del primer mes (no sumar)
+                    if (key === 'SALDO_ANTERIOR') {
+                        if (!totals.hasOwnProperty(key)) {
+                            totals[key] = n; // Solo tomar el primer valor
+                        }
+                    } else {
+                        // Demás campos son flujo -> sumar
+                        totals[key] = (totals[key] || 0) + n;
+                    }
                 }
             }
         }
+
+        // Aplicar reglas de consolidación
+        // Total Ingresos = Transferencia Fondos + Desembolsos Bancarios + Otros Ingresos
+        totals.TOTAL_INGRESOS = 
+            (totals.TRANSFERENCIA_FONDOS || 0) +
+            (totals.DESEMBOLSOS_BANCARIOS || 0) +
+            (totals.OTROS_INGRESOS || 0);
+
+        // Total Egresos = Suma de todos los gastos/egresos
+        totals.TOTAL_EGRESOS = 
+            (totals.PRESTAMOS_BANCARIOS || 0) +
+            (totals.INVERSIONES || 0) +
+            (totals.RPR_CONSULTORES || 0) +
+            (totals.BONOS_PLRS || 0) +
+            (totals.DIVIDENDOS_PAGAR || 0) +
+            (totals.CUENTAS_PAGAR || 0) +
+            (totals.AGUINALDOS || 0) +
+            (totals.FINIQUITOS || 0) +
+            (totals.PRIMAS || 0) +
+            (totals.RETROACTIVOS || 0) +
+            (totals.IUE || 0) +
+            (totals.OTROS_GASTOS || 0);
+
+        // Saldo Actual = Saldo Anterior + Total Ingresos - Total Egresos
+        totals.SALDO_ACTUAL = (totals.SALDO_ANTERIOR || 0) + totals.TOTAL_INGRESOS - totals.TOTAL_EGRESOS;
 
         return totals;
     }
