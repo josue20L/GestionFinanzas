@@ -49,7 +49,37 @@ const getPeriodosByEmpresa = async (req, res) => {
     }
 };
 
+// Eliminar período financiero y sus datos asociados
+const eliminarPeriodo = async (req, res) => {
+    try {
+        const { id_empresa, fecha } = req.body;
+
+        if (!id_empresa || !fecha) {
+            return res.status(400).json({ message: 'id_empresa y fecha son requeridos' });
+        }
+
+        const [anio, mes] = fecha.split('-');
+
+        // Buscar el período para obtener su ID
+        const periodo = await PeriodoFinanciero.getByEmpresaAnioMes(id_empresa, anio, mes);
+        if (!periodo) {
+            return res.status(404).json({ message: 'Período no encontrado' });
+        }
+
+        // Eliminar el período (el modelo debe manejar la cascada)
+        await PeriodoFinanciero.eliminar(periodo.ID_PERIODO);
+
+        return res.status(200).json({
+            message: 'Período y todos sus datos asociados eliminados correctamente'
+        });
+    } catch (error) {
+        console.error('Error en eliminarPeriodo:', error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     crearOUbtenerPeriodo,
-    getPeriodosByEmpresa
+    getPeriodosByEmpresa,
+    eliminarPeriodo
 };

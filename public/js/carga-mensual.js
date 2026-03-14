@@ -141,18 +141,23 @@ class CargaMensualManager {
                 const fecha = `${anio}-${mesStr}`;
                 
                 if (periodoExistente) {
-                    // Mes existe
+                    // Mes existe - click derecho para menú contextual
                     const estadoClass = periodoExistente.CERRADO ? 'danger' : 'success';
                     
                     periodosHtml += `
-                        <div class="btn btn-sm btn-outline-success position-relative" 
-                             style="cursor: pointer;" 
-                             onclick="cargaMensualManager.cargarPeriodoExistente('${fecha}')" 
-                             title="${this.getNombreMes(mes)} - ${periodoExistente.CERRADO ? 'Cerrado' : 'Abierto'} - Click para cargar">
-                            ${this.getNombreMes(mes)}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-${estadoClass}" style="font-size: 0.6rem; padding: 1px 3px;">
-                                ${periodoExistente.tiene_er ? '•' : ''}
-                            </span>
+                        <div class="periodo-item" 
+                             data-fecha="${fecha}" 
+                             data-existe="true"
+                             oncontextmenu="cargaMensualManager.mostrarMenuContextual(event, '${fecha}', true)">
+                            <button class="btn btn-sm btn-outline-success position-relative" 
+                                    style="cursor: pointer;" 
+                                    onclick="cargaMensualManager.cargarPeriodoExistente('${fecha}')" 
+                                    title="${this.getNombreMes(mes)} - ${periodoExistente.CERRADO ? 'Cerrado' : 'Abierto'} - Click para cargar">
+                                ${this.getNombreMes(mes)}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-${estadoClass}" style="font-size: 0.6rem; padding: 1px 3px;">
+                                    ${periodoExistente.tiene_er ? '•' : ''}
+                                </span>
+                            </button>
                         </div>
                     `;
                 } else {
@@ -176,7 +181,152 @@ class CargaMensualManager {
         });
         
         periodosHtml += '</div></div>';
+        
+        // Agregar menú contextual al final
+        periodosHtml += `
+            <div id="context-menu" class="context-menu" style="display: none;">
+                <div class="context-menu-item" onclick="cargaMensualManager.ejecutarAccionContextual('cargar')">
+                    <i class="bi bi-folder-open me-2"></i> Cargar Período
+                </div>
+                <div class="context-menu-item text-danger" onclick="cargaMensualManager.ejecutarAccionContextual('eliminar')">
+                    <i class="bi bi-trash me-2"></i> Eliminar Período
+                </div>
+            </div>
+        `;
+        
         container.innerHTML = periodosHtml;
+    }
+
+    async confirmarEliminarPeriodo(fecha) {
+        const empresaNombre = this.selectEmpresa.options[this.selectEmpresa.selectedIndex]?.text || 'esta empresa';
+        const [anio, mes] = fecha.split('-');
+        const nombreMes = this.getNombreMes(parseInt(mes));
+        
+        const confirmar = confirm(
+            `¿Estás seguro de eliminar el período ${nombreMes} ${anio} de ${empresaNombre}?\n\n` +
+            'Esta acción eliminará TODOS los datos financieros asociados a este período ' +
+            '(Estado de Resultados, Balance General, Flujos Operativo y Corporativo) y no se puede deshacer.'
+        );
+        
+        if (confirmar) {
+            await this.eliminarPeriodo(fecha);
+        }
+    }
+
+    async eliminarPeriodo(fecha) {
+        try {
+            this.showToast('🗑️ Eliminando período...', 'info');
+            
+            const response = await fetch('/api/periodos-financieros/eliminar', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fecha: fecha,
+                    id_empresa: this.selectEmpresa.value
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                this.showToast('✅ Período eliminado exitosamente', 'success');
+                
+                // Recargar la página después de un breve momento para mostrar el mensaje
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Error al eliminar período');
+            }
+
+        } catch (error) {
+            console.error('Error al eliminar período:', error);
+            this.showToast(`❌ Error: ${error.message}`, 'danger');
+        }
+    }
+
+    mostrarMenuContextual(event, fecha, existe) {
+        event.preventDefault();
+        
+        // Guardar el período seleccionado
+        this.periodoSeleccionado = fecha;
+        this.periodoExiste = existe;
+        
+        const menu = document.getElementById('context-menu');
+        if (!menu) return;
+        
+        // Posicionar el menú (usando scroll para mayor precisión)
+        const posX = event.clientX;
+        const posY = event.clientY;
+        
+        menu.style.display = 'block';
+        menu.style.left = posX + 'px';
+        menu.style.top = posY + 'px';
+        menu.style.position = 'fixed'; // Usar fixed para que no se desplace con el contenedor
+        
+        // Ocultar menú al hacer click fuera
+        const hideMenu = (e) => {
+            if (!menu.contains(e.target)) {
+                menu.style.display = 'none';
+                document.removeEventListener('mousedown', hideMenu);
+            }
+        };
+        
+        setTimeout(() => {
+            document.addEventListener('mousedown', hideMenu);
+        }, 10);
+    }
+
+    async confirmarEliminarPeriodo(fecha) {
+        const empresaNombre = this.selectEmpresa.options[this.selectEmpresa.selectedIndex]?.text || 'esta empresa';
+        const [anio, mes] = fecha.split('-');
+        const nombreMes = this.getNombreMes(parseInt(mes));
+        
+        if (window.confirmModal) {
+            window.confirmModal.show({
+                title: 'Eliminar Período Financiero',
+                message: `¿Estás seguro de eliminar el período ${nombreMes} ${anio} de ${empresaNombre}?\n\n⚠️ Esta acción eliminará TODOS los datos financieros asociados ER,BG,FO y FC. Esta acción no se puede deshacer.`,
+                confirmText: 'Eliminar permanentemente',
+                cancelText: 'Cancelar',
+                confirmVariant: 'danger',
+                onOk: () => this.eliminarPeriodo(fecha)
+            });
+        } else {
+            // Fallback si el modal no carga
+            const confirmar = confirm(
+                `¿Estás seguro de eliminar el período ${nombreMes} ${anio} de ${empresaNombre}?\n\n` +
+                'Esta acción eliminará TODOS los datos asociados y no se puede deshacer.'
+            );
+            if (confirmar) await this.eliminarPeriodo(fecha);
+        }
+    }
+
+    eliminarPeriodoActual() {
+        if (!this.periodoActual) {
+            this.showToast('⚠️ No hay período activo para eliminar', 'warning');
+            return;
+        }
+
+        const fecha = `${this.periodoActual.ANO}-${String(this.periodoActual.MES).padStart(2, '0')}`;
+        this.confirmarEliminarPeriodo(fecha);
+    }
+
+    ejecutarAccionContextual(accion) {
+        const menu = document.getElementById('context-menu');
+        if (menu) menu.style.display = 'none';
+        
+        if (!this.periodoSeleccionado) return;
+        
+        if (accion === 'cargar') {
+            this.cargarPeriodoExistente(this.periodoSeleccionado);
+        } else if (accion === 'eliminar') {
+            this.confirmarEliminarPeriodo(this.periodoSeleccionado);
+        }
+        
+        this.periodoSeleccionado = null;
+        this.periodoExiste = false;
     }
 
     getNombreMes(mes) {
