@@ -24,7 +24,17 @@ const getByPeriodo = async (req, res) => {
 // Crear o actualizar Estado de Resultados para un período
 const saveForPeriodo = async (req, res) => {
     try {
-        const { id_periodo, ventas_netas, costo_ventas, gasto_administrativo, gasto_comercializacion, gasto_sig, gasto_tributario, gasto_financiero, otros_ingresos, otros_egresos } = req.body;
+        const { id_periodo,
+                ventas_netas,
+                costo_ventas,
+                gasto_administrativo, 
+                gasto_comercializacion, 
+                gasto_sig, 
+                gasto_tributario, 
+                gasto_financiero, 
+                otros_ingresos, 
+                otros_egresos 
+            } = req.body;
 
         if (!id_periodo) {
             return res.status(400).json({ message: 'id_periodo es requerido' });
