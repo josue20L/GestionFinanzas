@@ -14,7 +14,7 @@ class EstadoResultadosManager {
     }
 
     setupCalculos() {
-        const inputs = this.container.querySelectorAll('input[type="number"]:not([readonly])');
+        const inputs = this.container.querySelectorAll('input[type="number"]:not([readonly]), input[type="text"][inputmode="decimal"]:not([readonly])');
         
         inputs.forEach(input => {
             input.addEventListener('input', () => this.calcular());
@@ -101,7 +101,9 @@ class EstadoResultadosManager {
                     console.log('🔍 Input value actual:', input ? input.value : 'NULL');
                     
                     if (input) {
-                        input.value = data[rawKey] || 0;
+                        input.value = typeof window.formatNumberForInput === 'function'
+                            ? window.formatNumberForInput(data[rawKey] || 0)
+                            : (data[rawKey] || 0);
                         camposCargados++;
                         console.log('🔍 Input actualizado:', key, '=', data[rawKey] || 0);
                     } else {
@@ -153,11 +155,13 @@ class EstadoResultadosManager {
     }
 
     getFormData() {
-        const inputs = this.container.querySelectorAll('input[type="number"]');
+        const inputs = this.container.querySelectorAll('input[type="number"], input[type="text"][inputmode="decimal"]');
         const data = {};
 
         inputs.forEach(input => {
-            const value = parseFloat(input.value) || 0;
+            const value = typeof window.parseNumberFromInput === 'function'
+                ? window.parseNumberFromInput(input.value)
+                : (parseFloat(input.value) || 0);
             data[input.name] = value;
         });
 
@@ -166,13 +170,17 @@ class EstadoResultadosManager {
 
     getInputValue(name) {
         const input = this.container.querySelector(`[name="${name}"]`);
-        return parseFloat(input?.value) || 0;
+        return typeof window.parseNumberFromInput === 'function'
+            ? window.parseNumberFromInput(input?.value)
+            : (parseFloat(input?.value) || 0);
     }
 
     setInputValue(name, value) {
         const input = this.container.querySelector(`[name="${name}"]`);
         if (input) {
-            input.value = value.toFixed(2);
+            input.value = typeof window.formatNumberForInput === 'function'
+                ? window.formatNumberForInput(value, 2)
+                : Number(value).toFixed(2);
         }
     }
 
@@ -181,9 +189,10 @@ class EstadoResultadosManager {
     }
 
     limpiarCampos() {
-        const inputs = this.container.querySelectorAll('input[type="number"]');
+        const inputs = this.container.querySelectorAll('input[type="number"], input[type="text"][inputmode="decimal"]');
+        const fmt = typeof window.formatNumberForInput === 'function' ? window.formatNumberForInput(0, 2) : '0.00';
         inputs.forEach(input => {
-            input.value = 0;
+            input.value = fmt;
         });
         this.calcular(); // Recalcular con valores en 0
     }

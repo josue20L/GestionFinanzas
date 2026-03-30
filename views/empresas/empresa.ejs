@@ -21,5 +21,36 @@
 <!-- Incluir el modal -->
 <%- include('./modal') %>
 
+<!-- Modal para ver Documentos -->
+<div class="modal fade" id="documentosModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                    Documentos de <span id="empresaNombre"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Lista de documentos -->
+                <div id="documentosList">
+                    <div id="documentosGrid" class="row">
+                        <!-- Los documentos se cargarán aquí -->
+                    </div>
+                    <div id="noDocumentos" class="text-center py-4 text-muted" style="display: none;">
+                        <i class="bi bi-file-earmark-x fs-1"></i>
+                        <p class="mt-2">No hay documentos subidos</p>
+                        <small class="text-muted">Puedes subir documentos editando la empresa</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript modularizado -->
 <script src="/js/empresas.js"></script>

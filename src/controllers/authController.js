@@ -11,15 +11,13 @@ const showLogin = async (req, res) => {
     try {
         const usuarios = await Usuario.getAll();
         if (!usuarios || usuarios.length === 0) {
-            // Obtener empresas y roles para el formulario
-            const empresas = await Empresa.getAll();
-            const roles = await Rol.getAll();
-            
+            // Es el primer usuario, no mostrar campos de rol y empresa
             return res.render('auth/crear-admin', {
-                title: 'Crear Administrador',
+                title: 'Crear Primer Administrador',
                 error: null,
-                empresas,
-                roles
+                empresas: [],
+                roles: [],
+                isFirstUser: true
             });
         }
     } catch (error) {
@@ -34,17 +32,18 @@ const showLogin = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const email = (req.body.email || '').toString().trim();
+        // Permitir login por nombre de usuario (principal) o email (respaldo)
+        const loginField = (req.body.login || req.body.email || '').toString().trim();
         const password = (req.body.password || '').toString();
 
-        if (!email || !password) {
+        if (!loginField || !password) {
             return res.status(400).render('auth/login', {
                 title: 'Iniciar Sesión',
-                error: 'Email y contraseña son requeridos.'
+                error: 'Usuario y contraseña son requeridos.'
             });
         }
 
-        const sessionUser = await Usuario.authenticate(email, password);
+        const sessionUser = await Usuario.authenticateByLogin(loginField, password);
         if (!sessionUser) {
             return res.status(401).render('auth/login', {
                 title: 'Iniciar Sesión',

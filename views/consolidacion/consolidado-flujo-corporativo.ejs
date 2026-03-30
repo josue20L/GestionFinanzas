@@ -1,8 +1,16 @@
 <div class="card">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="bi bi-building me-2"></i> Flujo Corporativo Consolidado
         </h5>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Imprimir
+            </button>
+            <button class="btn btn-sm btn-outline-success" onclick="window.exportAllConsolidacion && window.exportAllConsolidacion()">
+                <i class="bi bi-file-excel me-1"></i> Excel
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive mb-4">
@@ -75,15 +83,23 @@ function actualizarTablaFlujoCorporativo(datos) {
         (datos.periodos || []).forEach((_, idx) => {
             const td = document.createElement('td');
             td.className = 'text-end';
-            td.textContent = formatNumber(series[idx] || 0);
+            const valor = series[idx] || 0;
+            td.setAttribute('data-valor-bob', valor);
+            td.textContent = formatNumber(valor);
             tr.appendChild(td);
         });
 
         if (totalTd) {
+            totalTd.setAttribute('data-valor-bob', total);
             totalTd.textContent = formatNumber(total);
             tr.appendChild(totalTd);
         }
     });
+
+    // Notificar al CurrencyManager
+    if (window.CurrencyManager) {
+        window.CurrencyManager.actualizarValoresEnTablas();
+    }
 }
 
 window.actualizarTablaFlujoCorporativo = actualizarTablaFlujoCorporativo;

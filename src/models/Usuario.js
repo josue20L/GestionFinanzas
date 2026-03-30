@@ -34,6 +34,15 @@ class Usuario {
         }
     }
 
+    static async getByUsername(username) {
+        try {
+            const [rows] = await db.query('SELECT * FROM USUARIO WHERE NOMBRE_USUARIO = ?', [username]);
+            return rows[0] || null;
+        } catch (error) {
+            throw new Error(`Error al obtener usuario por nombre de usuario: ${error.message}`);
+        }
+    }
+
     static async getWithAccesosById(idUsuario) {
         const user = await this.getById(idUsuario);
         if (!user) return null;
@@ -88,6 +97,38 @@ class Usuario {
 
     static async authenticate(email, password) {
         const user = await this.getByEmail(email);
+        if (!user) return null;
+        if (!user.ACTIVO) return null;
+
+        const dbPassword = user.PASSWORD;
+        let ok = false;
+
+        if (isBcryptHash(dbPassword)) {
+            ok = await bcrypt.compare(password, dbPassword);
+        } else {
+            ok = String(password) === String(dbPassword);
+            if (ok) {
+                const newHash = await bcrypt.hash(password, 10);
+                await db.query('UPDATE USUARIO SET PASSWORD = ? WHERE ID_USUARIO = ?', [newHash, user.ID_USUARIO]);
+            }
+        }
+
+        if (!ok) return null;
+
+        const accesos = await AccesoUsuario.getByUserId(user.ID_USUARIO);
+        return this.buildSessionUser(user, accesos);
+    }
+
+    /**
+     * Autenticación por login genérico (usuario o email)
+     */
+    static async authenticateByLogin(login, password) {
+        // Intentar primero por nombre de usuario
+        let user = await this.getByUsername(login);
+        if (!user) {
+            // Como respaldo, intentar por email
+            user = await this.getByEmail(login);
+        }
         if (!user) return null;
         if (!user.ACTIVO) return null;
 

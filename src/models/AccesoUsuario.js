@@ -22,13 +22,16 @@ class AccesoUsuario {
 
     static async upsert(idUsuario, idEmpresa, idRol) {
         try {
+            console.log('DEBUG: Upserting access for user', idUsuario, 'empresa', idEmpresa, 'rol', idRol);
             await db.query(`
                 INSERT INTO ACCESO_USUARIO (ID_USUARIO, ID_EMPRESA, ID_ROL)
                 VALUES (?, ?, ?)
                 ON DUPLICATE KEY UPDATE ID_ROL = VALUES(ID_ROL)
             `, [idUsuario, idEmpresa, idRol]);
+            console.log('DEBUG: Upsert successful');
             return true;
         } catch (error) {
+            console.error('DEBUG: Upsert failed:', error.message);
             throw new Error(`Error al asignar acceso: ${error.message}`);
         }
     }

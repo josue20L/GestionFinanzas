@@ -9,6 +9,7 @@ class Empresa {
                 FROM EMPRESA e
                 LEFT JOIN GRUPO_EMPRESARIAL g ON e.ID_GRUPO = g.ID_GRUPO
                 LEFT JOIN MONEDA m ON e.ID_MONEDA = m.ID_MONEDA
+                WHERE e.IS_SYSTEM = FALSE
                 ORDER BY e.NOMBRE_EMPRESA
             `);
             return rows;
@@ -79,6 +80,16 @@ class Empresa {
             const [result] = await db.query('DELETE FROM EMPRESA WHERE ID_EMPRESA = ?', [id]);
             return result.affectedRows > 0;
         } catch (error) {
+            // Manejar error típico de llave foránea (empresa con datos relacionados)
+            if (error && error.code === 'ER_ROW_IS_REFERENCED_2') {
+                // Mensaje más claro para el controlador / frontend
+                const friendly = 'No se puede eliminar la empresa porque tiene datos relacionados ' +
+                    '(períodos financieros, documentos, usuarios u otros registros). ' +
+                    'Elimina primero esos datos o configura un borrado en cascada.';
+                const e = new Error(friendly);
+                e.code = error.code;
+                throw e;
+            }
             throw new Error(`Error al eliminar empresa: ${error.message}`);
         }
     }

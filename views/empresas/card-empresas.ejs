@@ -11,6 +11,9 @@
                 <button class="btn btn-sm btn-outline-primary" onclick="editarEmpresa('<%= empresa.ID_EMPRESA %>')">
                     <i class="bi bi-pencil"></i> Editar
                 </button>
+                <button class="btn btn-sm btn-outline-info" onclick="verDocumentos('<%= empresa.ID_EMPRESA %>', '<%= empresa.NOMBRE_EMPRESA %>')">
+                    <i class="bi bi-file-earmark-pdf"></i> Documentos
+                </button>
                 <button class="btn btn-sm btn-outline-danger" onclick="eliminarEmpresa('<%= empresa.ID_EMPRESA %>')">
                     <i class="bi bi-trash"></i> Eliminar
                 </button>
