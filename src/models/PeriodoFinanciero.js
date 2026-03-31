@@ -131,13 +131,34 @@ class PeriodoFinanciero {
         }
     }
 
-    // Eliminar período
-    static async delete(id) {
+    // Eliminar período financiero y sus datos asociados en cascada
+    static async eliminar(id) {
+        const connection = await db.getConnection();
         try {
-            const [result] = await db.query('DELETE FROM PERIODOFINANCIERO WHERE ID_PERIODO = ?', [id]);
+            await connection.beginTransaction();
+
+            // 1. Eliminar datos de Flujo Corporativo
+            await connection.query('DELETE FROM FLUJOCORPORATIVO WHERE ID_PERIODO = ?', [id]);
+
+            // 2. Eliminar datos de Flujo Operativo
+            await connection.query('DELETE FROM FLUJOOPERATIVO WHERE ID_PERIODO = ?', [id]);
+
+            // 3. Eliminar datos de Balance General
+            await connection.query('DELETE FROM BALANCEGENERAL WHERE ID_PERIODO = ?', [id]);
+
+            // 4. Eliminar datos de Estado de Resultados
+            await connection.query('DELETE FROM ESTADORESULTADO WHERE ID_PERIODO = ?', [id]);
+
+            // 5. Eliminar el Período Financiero
+            const [result] = await connection.query('DELETE FROM PERIODOFINANCIERO WHERE ID_PERIODO = ?', [id]);
+
+            await connection.commit();
             return result.affectedRows > 0;
         } catch (error) {
-            throw new Error(`Error al eliminar período: ${error.message}`);
+            await connection.rollback();
+            throw new Error(`Error al eliminar período en cascada: ${error.message}`);
+        } finally {
+            connection.release();
         }
     }
 

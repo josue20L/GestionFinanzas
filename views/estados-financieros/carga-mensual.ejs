@@ -1,5 +1,67 @@
 <h2 class="mb-4">Carga Mensual</h2>
 
+<!-- CSS personalizado para carga mensual -->
+<style>
+.periodo-container:hover .eliminar-periodo-btn {
+    opacity: 1 !important;
+}
+
+.eliminar-periodo-btn:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+    transform: scale(1.05);
+}
+
+.eliminar-periodo-btn {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.eliminar-periodo-btn:hover {
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2);
+}
+
+/* Menú contextual */
+.context-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    min-width: 180px;
+    padding: 0.5rem 0;
+}
+
+.context-menu-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    transition: background-color 0.15s ease;
+}
+
+.context-menu-item:hover {
+    background-color: #f8f9fa;
+}
+
+.context-menu-item.text-danger:hover {
+    background-color: #f8d7da;
+}
+
+/* Cursor contextual para períodos */
+.periodo-item {
+    display: inline-block;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.periodo-item[data-existe="true"] {
+    cursor: context-menu;
+}
+</style>
+
 <!-- CSS personalizado para tabs -->
 <link rel="stylesheet" href="/css/carga-mensual.css">
 <link rel="stylesheet" href="/css/notificaciones/modal-cambios.css">
@@ -31,6 +93,66 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tarjeta de Carga Excel -->
+<div class="card mb-4 border-success">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-file-earmark-excel me-2"></i> Carga Masiva desde Excel
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="excel-file" class="form-label">Seleccionar archivo Excel</label>
+                    <input type="file" class="form-control" id="excel-file" accept=".xlsx,.xls">
+                    <div class="form-text">
+                        Formato: Conceptos en filas, períodos en columnas (ej: ene-26, feb-26)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="tipo-estado" class="form-label">Tipo de Estado Financiero</label>
+                    <select class="form-select" id="tipo-estado">
+                        <option value="">Seleccione tipo</option>
+                        <option value="ESTADO_RESULTADOS">Estado de Resultados</option>
+                        <option value="BALANCE_GENERAL">Balance General</option>
+                        <option value="FLUJO_OPERATIVO">Flujo Operativo</option>
+                        <option value="FLUJO_CORPORATIVO">Flujo Corporativo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">Empresa</label>
+                    <div class="form-control-plaintext fw-bold" id="excel-empresa-nombre">
+                        Seleccione empresa arriba
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success w-100" id="btn-subir-excel" disabled>
+                    <i class="bi bi-upload me-2"></i> Subir y Procesar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Área de progreso y resultados -->
+        <div id="excel-progreso" style="display: none;">
+            <div class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="excel-progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div id="excel-mensaje" class="alert alert-info mb-0">
+                Procesando archivo...
+            </div>
+        </div>
+        
+        <!-- Resultados -->
+        <div id="excel-resultados" style="display: none;">
+            <!-- Se llenará dinámicamente -->
         </div>
     </div>
 </div>
@@ -92,7 +214,7 @@
     <div class="card mt-4">
         <div class="card-body d-flex justify-content-between align-items-center">
             <div class="btn-group">
-                <button type="button" class="btn btn-danger">
+                <button type="button" class="btn btn-danger" onclick="cargaMensualManager.eliminarPeriodoActual()">
                     <i class="bi bi-trash me-2"></i> Eliminar
                 </button>
                 <button type="button" class="btn btn-success" onclick="guardarDatos()">
@@ -105,9 +227,12 @@
 
 <!-- Utilidad: separador de miles (coma) en inputs numéricos -->
 <script src="/js/utils/formatNumberInput.js"></script>
+<script src="/js/utils/confirm-modal.js"></script>
 <!-- JavaScript modularizado -->
 <script src="/js/estado-resultados.js"></script>
 <script src="/js/balance-general.js"></script>
 <script src="/js/flujo-operativo.js"></script>
 <script src="/js/flujo-corporativo.js"></script>
 <script src="/js/carga-mensual.js"></script>
+<!-- Excel Upload -->
+<script src="/js/excel-upload.js"></script>

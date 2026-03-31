@@ -26,14 +26,15 @@ class FlujoOperativoService {
     }
 
     /**
-     * Consolida (suma) los datos de multiples registros de flujo operativo
+     * Consolida los datos de flujo operativo aplicando las reglas de negocio
      * @param {Array} rows - Registros de flujo operativo
-     * @returns {Object} Datos consolidados
+     * @returns {Object} Datos consolidados con campos calculados
      */
     consolidarDatos(rows) {
         const totals = {};
         if (!Array.isArray(rows)) return totals;
 
+        // Primero sumar los campos base (no calculados)
         for (const row of rows) {
             if (!row) continue;
             for (const [key, value] of Object.entries(row)) {
@@ -43,17 +44,52 @@ class FlujoOperativoService {
                     key === 'ID_EMPRESA' ||
                     key === 'ANO' ||
                     key === 'MES' ||
-                    key === 'periodo'
+                    key === 'periodo' ||
+                    key === 'TOTAL_INGRESOS' ||  // Campos calculados que se ignoran
+                    key === 'TOTAL_EGRESOS' ||
+                    key === 'SALDO_ACTUAL'
                 ) {
                     continue;
                 }
 
                 const n = Number(value);
                 if (Number.isFinite(n)) {
-                    totals[key] = (totals[key] || 0) + n;
+                    // SALDO_ANTERIOR es estado_inicio -> tomar valor del primer mes (no sumar)
+                    if (key === 'SALDO_ANTERIOR') {
+                        if (!totals.hasOwnProperty(key)) {
+                            totals[key] = n; // Solo tomar el primer valor
+                        }
+                    } else {
+                        // Demás campos son flujo -> sumar
+                        totals[key] = (totals[key] || 0) + n;
+                    }
                 }
             }
         }
+
+        // Aplicar reglas de consolidación
+        // Total Ingresos = SUMA de todos los ingresos
+        totals.TOTAL_INGRESOS = 
+            (totals.VENTAS || 0) +
+            (totals.VENTAS_EXPORTACION || 0) +
+            (totals.CARTERA || 0) +
+            (totals.TRANSPORTES_ING || 0) +
+            (totals.OTROS_INGRESOS || 0);
+
+        // Total Egresos = SUMA de todos los egresos
+        totals.TOTAL_EGRESOS = 
+            (totals.GASTOS_ADMINISTRATIVOS || 0) +
+            (totals.GASTOS_COMERCIALES || 0) +
+            (totals.GASTOS_PRODUCCION || 0) +
+            (totals.ENVIOS_CTA_CORP || 0) +
+            (totals.IMPUESTOS || 0) +
+            (totals.TRANSPORTES_EGR || 0) +
+            (totals.CUENTAS_POR_PAGAR || 0) +
+            (totals.INVERSIONES || 0) +
+            (totals.OTROS_GASTOS || 0);
+
+        // Saldo Actual = Saldo Anterior + Total Ingresos - Total Egresos
+        totals.SALDO_ACTUAL = (totals.SALDO_ANTERIOR || 0) + totals.TOTAL_INGRESOS - totals.TOTAL_EGRESOS;
 
         return totals;
     }
