@@ -12,7 +12,7 @@ const CurrencyManager = {
 
     async cargarTasa() {
         try {
-            const res = await fetch('/api/tasacambio/2/1/actual');
+            const res = await fetch('/api/tasas/1/2/actual');
             const data = await res.json();
             if (data.success && data.tasa) {
                 this.tasaUSD = data.tasa.VALOR_VENTA;
@@ -45,14 +45,16 @@ const CurrencyManager = {
         const celdasValores = document.querySelectorAll('td[data-valor-bob], span[data-valor-bob]');
         
         celdasValores.forEach(celda => {
-            const valorBob = parseFloat(celda.getAttribute('data-valor-bob'));
-            if (isNaN(valorBob)) return;
+            const valorUsd = parseFloat(celda.getAttribute('data-valor-bob'));
+            if (isNaN(valorUsd)) return;
 
-            if (this.currentCurrency === 'USD') {
-                const valorUsd = valorBob / this.tasaUSD;
-                celda.textContent = this.formatearMonto(valorUsd);
-            } else {
+            if (this.currentCurrency === 'BOB') {
+                // Convertir de USD a BOB: multiplicar por tasa
+                const valorBob = valorUsd * this.tasaUSD;
                 celda.textContent = this.formatearMonto(valorBob);
+            } else {
+                // Mostrar en USD: valor original
+                celda.textContent = this.formatearMonto(valorUsd);
             }
         });
     },

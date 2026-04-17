@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        valor_compra: valorVenta,
-                        valor_venta: valorVenta,
-                        id_moneda_origen: 1, // BOB
-                        id_moneda_destino: 2  // USD
+                        valorCompra: valorVenta,
+                        valorVenta: valorVenta,
+                        idMonedaOrigen: 1, // BOB
+                        idMonedaDestino: 2  // USD
                     })
                 });
 
@@ -76,10 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
         tasas.forEach(tasa => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${new Date(tasa.fecha).toLocaleDateString()}</td>
-                <td>${tasa.nombre_moneda_origen || 'BOB'}</td>
-                <td>${tasa.nombre_moneda_destino || 'USD'}</td>
-                <td>${tasa.valor_venta}</td>
+                <td>${tasa.FECHA ? new Date(tasa.FECHA).toLocaleDateString() : 'Sin fecha'}</td>
+                <td>${tasa.NOMBRE_MONEDA_ORIGEN || 'BOB'}</td>
+                <td>${tasa.NOMBRE_MONEDA_DESTINO || 'USD'}</td>
+                <td>${tasa.VALOR_VENTA || tasa.valor_venta || '-'}</td>
             `;
             tbody.appendChild(row);
         });

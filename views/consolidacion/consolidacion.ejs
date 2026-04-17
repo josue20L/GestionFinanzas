@@ -112,7 +112,34 @@
 
 </div>
 
-
+<!-- Selector de Moneda y Tasa de Cambio -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Moneda de Visualización:</label>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="moneda" id="moneda-bob" value="BOB" checked>
+                    <label class="btn btn-outline-primary" for="moneda-bob">
+                        <i class="bi bi-currency-exchange me-1"></i> BOB
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="moneda" id="moneda-usd" value="USD">
+                    <label class="btn btn-outline-primary" for="moneda-usd">
+                        <i class="bi bi-currency-dollar me-1"></i> USD
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="tasa-info" class="text-end" style="display: none;">
+                    <span class="text-muted">Tasa actual: </span>
+                    <span class="fw-bold text-success" id="tasa-valor">-</span>
+                    <span class="text-muted"> BOB/USD</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="/js/consolidacion/utils/formatNumber.js"></script>
 
@@ -126,9 +153,190 @@
 
 <script src="/js/consolidacion/exportToExcel.js"></script>
 
+<script src="/js/lib/xlsx.full.min.js"></script>
+
 <script src="/js/reportes/consolidacion-reportes.js"></script>
 
+<script src="/js/consolidacion/currencyManager.js"></script>
+
 <script src="/js/consolidacion.js"></script>
+
+<!-- Función global para exportar consolidación completa -->
+<script>
+window.exportAllConsolidacion = function() {
+    // Verificar si XLSX está disponible
+    if (typeof XLSX === 'undefined') {
+        alert('Error: Librería XLSX no encontrada. Por favor recargue la página.');
+        return;
+    }
+
+    const dataWrapper = window.consolidacionDatosUltimos;
+    const datos = dataWrapper && dataWrapper.datosPorPeriodo ? dataWrapper.datosPorPeriodo : null;
+
+    if (!datos || !Array.isArray(datos.periodos) || !datos.periodos.length) {
+        alert('No hay datos de consolidación para exportar.');
+        return;
+    }
+
+    // Crear workbook
+    const wb = XLSX.utils.book_new();
+
+    // 1. Hoja de Estado de Resultados
+    const wsEstadoResultados = crearHojaEstadoResultados(datos);
+    XLSX.utils.book_append_sheet(wb, wsEstadoResultados, 'Estado de Resultados');
+
+    // 2. Hoja de Balance General (si hay datos)
+    const wsBalanceGeneral = crearHojaBalanceGeneral(datos);
+    if (wsBalanceGeneral) {
+        XLSX.utils.book_append_sheet(wb, wsBalanceGeneral, 'Balance General');
+    }
+
+    // 3. Hoja de Flujo Operativo (si hay datos)
+    const wsFlujoOperativo = crearHojaFlujoOperativo(datos);
+    if (wsFlujoOperativo) {
+        XLSX.utils.book_append_sheet(wb, wsFlujoOperativo, 'Flujo Operativo');
+    }
+
+    // 4. Hoja de Flujo Corporativo (si hay datos)
+    const wsFlujoCorporativo = crearHojaFlujoCorporativo(datos);
+    if (wsFlujoCorporativo) {
+        XLSX.utils.book_append_sheet(wb, wsFlujoCorporativo, 'Flujo Corporativo');
+    }
+
+    // Generar y descargar archivo Excel
+    const wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+    const blob = new Blob([s2ab(wbout)], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'consolidacion-financiera.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// Funciones auxiliares para crear hojas
+function crearHojaEstadoResultados(datos) {
+    const periodos = datos.periodos;
+    const conceptos = [
+        'Ventas Netas', 'Costo de Ventas', 'Utilidad Bruta',
+        'Gasto Administrativo', 'Gasto Comercialización', 'Gasto SIG',
+        'Gasto Operativo', 'EBIT', 'Gasto Tributario', 'Gasto Financiero',
+        'Utilidad Después de Impuestos', 'Otros Ingresos', 'Otros Egresos', 'Utilidad Neta'
+    ];
+
+    const wsData = [];
+    
+    // Encabezado
+    wsData.push(['Concepto', ...periodos, 'Total']);
+
+    // Datos
+    for (let filaIndex = 0; filaIndex < conceptos.length; filaIndex++) {
+        const row = [conceptos[filaIndex]];
+        let totalFila = 0;
+
+        periodos.forEach((_, periodoIndex) => {
+            const valor = obtenerValorPorFilaEstadoResultados(filaIndex, periodoIndex, datos) || 0;
+            totalFila += valor;
+            row.push(valor);
+        });
+
+        row.push(totalFila);
+        wsData.push(row);
+    }
+
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
+
+function crearHojaBalanceGeneral(datos) {
+    const balanceData = window.consolidacionDatosUltimos?.balanceGeneral;
+    if (!balanceData) return null;
+
+    const wsData = [['Cuenta', ...datos.periodos, 'Total']];
+    
+    if (balanceData.activos) {
+        wsData.push(['ACTIVOS', ...balanceData.activos]);
+    }
+    if (balanceData.pasivos) {
+        wsData.push(['PASIVOS', ...balanceData.pasivos]);
+    }
+    if (balanceData.patrimonio) {
+        wsData.push(['PATRIMONIO', ...balanceData.patrimonio]);
+    }
+
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
+
+function crearHojaFlujoOperativo(datos) {
+    const flujoData = window.consolidacionDatosUltimos?.flujoOperativo;
+    if (!flujoData) return null;
+
+    const wsData = [['Concepto', ...datos.periodos, 'Total']];
+    
+    if (flujoData.entradas) {
+        wsData.push(['ENTRADAS DE EFECTIVO', ...flujoData.entradas]);
+    }
+    if (flujoData.salidas) {
+        wsData.push(['SALIDAS DE EFECTIVO', ...flujoData.salidas]);
+    }
+    if (flujoData.neto) {
+        wsData.push(['FLUJO NETO', ...flujoData.neto]);
+    }
+
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
+
+function crearHojaFlujoCorporativo(datos) {
+    const flujoCorpData = window.consolidacionDatosUltimos?.flujoCorporativo;
+    if (!flujoCorpData) return null;
+
+    const wsData = [['Concepto', ...datos.periodos, 'Total']];
+    
+    if (flujoCorpData.operativo) {
+        wsData.push(['FLUJO OPERATIVO', ...flujoCorpData.operativo]);
+    }
+    if (flujoCorpData.inversion) {
+        wsData.push(['FLUJO DE INVERSIÓN', ...flujoCorpData.inversion]);
+    }
+    if (flujoCorpData.financiero) {
+        wsData.push(['FLUJO FINANCIERO', ...flujoCorpData.financiero]);
+    }
+    if (flujoCorpData.total) {
+        wsData.push(['FLUJO TOTAL', ...flujoCorpData.total]);
+    }
+
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
+
+function obtenerValorPorFilaEstadoResultados(filaIndex, periodoIndex, datos) {
+    const valores = {
+        0: datos.ventasNetas?.[periodoIndex] || 0,
+        1: datos.costoVentas?.[periodoIndex] || 0,
+        2: (datos.ventasNetas?.[periodoIndex] || 0) - (datos.costoVentas?.[periodoIndex] || 0),
+        3: datos.gastoAdministrativo?.[periodoIndex] || 0,
+        4: datos.gastoComercializacion?.[periodoIndex] || 0,
+        5: datos.gastoSig?.[periodoIndex] || 0,
+        6: (datos.gastoAdministrativo?.[periodoIndex] || 0) + (datos.gastoComercializacion?.[periodoIndex] || 0) + (datos.gastoSig?.[periodoIndex] || 0),
+        7: datos.ebit?.[periodoIndex] || 0,
+        8: datos.gastoTributario?.[periodoIndex] || 0,
+        9: datos.gastoFinanciero?.[periodoIndex] || 0,
+        10: (datos.ebit?.[periodoIndex] || 0) - (datos.gastoTributario?.[periodoIndex] || 0) - (datos.gastoFinanciero?.[periodoIndex] || 0),
+        11: datos.otrosIngresos?.[periodoIndex] || 0,
+        12: datos.otrosEgresos?.[periodoIndex] || 0,
+        13: ((datos.ebit?.[periodoIndex] || 0) - (datos.gastoTributario?.[periodoIndex] || 0) - (datos.gastoFinanciero?.[periodoIndex] || 0)) + (datos.otrosIngresos?.[periodoIndex] || 0) - (datos.otrosEgresos?.[periodoIndex] || 0)
+    };
+    return valores[filaIndex] || 0;
+}
+
+function s2ab(s) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+}
+</script>
 
 
 

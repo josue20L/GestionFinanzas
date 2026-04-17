@@ -334,6 +334,8 @@ function actualizarTablaConsolidacion(datos) {
 
             const valor = obtenerValorPorFila(filaIndex, periodoIndex, datos);
 
+            td.setAttribute('data-valor-bob', valor);
+
             td.textContent = formatNumber(valor);
 
             
@@ -490,118 +492,167 @@ const formatNumber = (typeof window !== 'undefined' && typeof window.formatNumbe
 
 
 
-// Función para exportar a Excel (CSV simple) usando los últimos datos consolidados
+// Función para exportar a Excel con múltiples hojas (una por tipo de reporte)
 
 function exportToExcel() {
 
-    const dataWrapper = window.consolidacionDatosUltimos;
+    // Verificar si XLSX está disponible
+    if (typeof XLSX === 'undefined') {
+        alert('Error: Librería XLSX no encontrada. Por favor recargue la página.');
+        return;
+    }
 
+    const dataWrapper = window.consolidacionDatosUltimos;
     const datos = dataWrapper && dataWrapper.datosPorPeriodo ? dataWrapper.datosPorPeriodo : null;
 
     if (!datos || !Array.isArray(datos.periodos) || !datos.periodos.length) {
-
         alert('No hay datos de consolidación para exportar.');
-
         return;
-
     }
 
+    // Crear workbook
+    const wb = XLSX.utils.book_new();
 
+    // 1. Hoja de Estado de Resultados
+    const wsEstadoResultados = crearHojaEstadoResultados(datos);
+    XLSX.utils.book_append_sheet(wb, wsEstadoResultados, 'Estado de Resultados');
 
+    // 2. Hoja de Balance General (si hay datos)
+    const wsBalanceGeneral = crearHojaBalanceGeneral(datos);
+    if (wsBalanceGeneral) {
+        XLSX.utils.book_append_sheet(wb, wsBalanceGeneral, 'Balance General');
+    }
+
+    // 3. Hoja de Flujo Operativo (si hay datos)
+    const wsFlujoOperativo = crearHojaFlujoOperativo(datos);
+    if (wsFlujoOperativo) {
+        XLSX.utils.book_append_sheet(wb, wsFlujoOperativo, 'Flujo Operativo');
+    }
+
+    // 4. Hoja de Flujo Corporativo (si hay datos)
+    const wsFlujoCorporativo = crearHojaFlujoCorporativo(datos);
+    if (wsFlujoCorporativo) {
+        XLSX.utils.book_append_sheet(wb, wsFlujoCorporativo, 'Flujo Corporativo');
+    }
+
+    // Generar y descargar archivo Excel
+    const wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+    const blob = new Blob([s2ab(wbout)], {type:'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'consolidacion-financiera.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Función para crear hoja de Estado de Resultados
+function crearHojaEstadoResultados(datos) {
     const periodos = datos.periodos;
-
-
-
     const conceptos = [
-
-        'Ventas Netas',
-
-        'Costo de Ventas',
-
-        'Utilidad Bruta',
-
-        'Gasto Administrativo',
-
-        'Gasto Comercialización',
-
-        'Gasto SIG',
-
-        'Gasto Operativo',
-
-        'EBIT',
-
-        'Gasto Tributario',
-
-        'Gasto Financiero',
-
-        'Utilidad Después de Impuestos',
-
-        'Otros Ingresos',
-
-        'Otros Egresos',
-
-        'Utilidad Neta'
-
+        'Ventas Netas', 'Costo de Ventas', 'Utilidad Bruta',
+        'Gasto Administrativo', 'Gasto Comercialización', 'Gasto SIG',
+        'Gasto Operativo', 'EBIT', 'Gasto Tributario', 'Gasto Financiero',
+        'Utilidad Después de Impuestos', 'Otros Ingresos', 'Otros Egresos', 'Utilidad Neta'
     ];
 
+    const wsData = [];
+    
+    // Encabezado
+    wsData.push(['Concepto', ...periodos, 'Total']);
 
-
-    const filas = [];
-
-    const encabezado = ['Concepto', ...periodos, 'Total'];
-
-    filas.push(encabezado.join(','));
-
-
-
+    // Datos
     for (let filaIndex = 0; filaIndex < conceptos.length; filaIndex++) {
-
         const row = [conceptos[filaIndex]];
-
         let totalFila = 0;
 
-
-
         periodos.forEach((_, periodoIndex) => {
-
             const valor = obtenerValorPorFila(filaIndex, periodoIndex, datos) || 0;
-
             totalFila += valor;
-
-            row.push(String(valor).replace(/,/g, '.'));
-
+            row.push(valor);
         });
 
-
-
-        row.push(String(totalFila).replace(/,/g, '.'));
-
-        filas.push(row.join(','));
-
+        row.push(totalFila);
+        wsData.push(row);
     }
 
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
 
+// Función para crear hoja de Balance General
+function crearHojaBalanceGeneral(datos) {
+    // Verificar si hay datos de balance general en el wrapper
+    const balanceData = window.consolidacionDatosUltimos?.balanceGeneral;
+    if (!balanceData) return null;
 
-    const csvContent = filas.join('\n');
+    const wsData = [['Cuenta', ...datos.periodos, 'Total']];
+    
+    // Agregar datos de balance si existen
+    if (balanceData.activos) {
+        wsData.push(['ACTIVOS', ...balanceData.activos]);
+    }
+    if (balanceData.pasivos) {
+        wsData.push(['PASIVOS', ...balanceData.pasivos]);
+    }
+    if (balanceData.patrimonio) {
+        wsData.push(['PATRIMONIO', ...balanceData.patrimonio]);
+    }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
 
-    const url = URL.createObjectURL(blob);
+// Función para crear hoja de Flujo Operativo
+function crearHojaFlujoOperativo(datos) {
+    const flujoData = window.consolidacionDatosUltimos?.flujoOperativo;
+    if (!flujoData) return null;
 
-    const a = document.createElement('a');
+    const wsData = [['Concepto', ...datos.periodos, 'Total']];
+    
+    if (flujoData.entradas) {
+        wsData.push(['ENTRADAS DE EFECTIVO', ...flujoData.entradas]);
+    }
+    if (flujoData.salidas) {
+        wsData.push(['SALIDAS DE EFECTIVO', ...flujoData.salidas]);
+    }
+    if (flujoData.neto) {
+        wsData.push(['FLUJO NETO', ...flujoData.neto]);
+    }
 
-    a.href = url;
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
 
-    a.download = 'consolidacion-estado-resultados.csv';
+// Función para crear hoja de Flujo Corporativo
+function crearHojaFlujoCorporativo(datos) {
+    const flujoCorpData = window.consolidacionDatosUltimos?.flujoCorporativo;
+    if (!flujoCorpData) return null;
 
-    document.body.appendChild(a);
+    const wsData = [['Concepto', ...datos.periodos, 'Total']];
+    
+    if (flujoCorpData.operativo) {
+        wsData.push(['FLUJO OPERATIVO', ...flujoCorpData.operativo]);
+    }
+    if (flujoCorpData.inversion) {
+        wsData.push(['FLUJO DE INVERSIÓN', ...flujoCorpData.inversion]);
+    }
+    if (flujoCorpData.financiero) {
+        wsData.push(['FLUJO FINANCIERO', ...flujoCorpData.financiero]);
+    }
+    if (flujoCorpData.total) {
+        wsData.push(['FLUJO TOTAL', ...flujoCorpData.total]);
+    }
 
-    a.click();
+    return XLSX.utils.aoa_to_sheet(wsData);
+}
 
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-
+// Función auxiliar para convertir string a array buffer
+function s2ab(s) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
 }
 
 
