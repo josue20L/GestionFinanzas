@@ -36,18 +36,26 @@
                             </td>
                             <td>
                                 <% if (accesos && accesos.length) { %>
-                                    <% accesos.forEach(a => { %>
-                                        <div class="small"><strong><%= a.NOMBRE_EMPRESA %></strong> - <%= a.NOMBRE_ROL %></div>
-                                    <% }) %>
+                                    <% const rolPrincipal = accesos[0].NOMBRE_ROL; %>
+                                    <span class="badge bg-primary"><%= rolPrincipal %></span>
+                                    <small class="text-muted d-block mt-1">
+                                        <% const nombresEmpresas = accesos.map(a => a.NOMBRE_EMPRESA); %>
+                                        <% if (nombresEmpresas.length <= 3) { %>
+                                            Empresas: <%= nombresEmpresas.join(', ') %>
+                                        <% } else { %>
+                                            Empresas: <%= nombresEmpresas.slice(0, 3).join(', ') %><br>
+                                            <%= nombresEmpresas.slice(3).join(', ') %>
+                                        <% } %>
+                                    </small>
                                 <% } else { %>
                                     <span class="text-muted small">Sin accesos</span>
                                 <% } %>
                             </td>
                             <td class="text-end">
                                 <a class="btn btn-sm btn-outline-primary" href="/usuarios/<%= user.ID_USUARIO %>/editar">Editar</a>
-                                <form method="POST" action="/usuarios/<%= user.ID_USUARIO %>/eliminar" style="display:inline;" onsubmit="return confirm('¿Eliminar usuario?');">
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
-                                </form>
+                                <button class="btn btn-sm btn-outline-danger btn-eliminar-usuario" data-id="<%= user.ID_USUARIO %>" data-nombre="<%= user.NOMBRE_USUARIO %>">
+                                    Eliminar
+                                </button>
                             </td>
                         </tr>
                     <% }) %>
@@ -56,3 +64,42 @@
         </div>
     </div>
 </div>
+
+<script>
+// Manejar eliminación de usuarios con modal de confirmación
+document.addEventListener('DOMContentLoaded', function() {
+    const btnsEliminar = document.querySelectorAll('.btn-eliminar-usuario');
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmModalTitle = document.getElementById('confirmModalTitle');
+    const confirmModalMessage = document.getElementById('confirmModalMessage');
+    const confirmModalOk = document.getElementById('confirmModalOk');
+    let modalInstance = null;
+
+    btnsEliminar.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idUsuario = this.getAttribute('data-id');
+            const nombreUsuario = this.getAttribute('data-nombre');
+
+            // Configurar el modal
+            confirmModalTitle.textContent = 'Eliminar Usuario';
+            confirmModalMessage.textContent = `¿Estás seguro de eliminar al usuario "${nombreUsuario}"? Esta acción no se puede deshacer.`;
+
+            // Configurar botón de confirmación
+            confirmModalOk.onclick = function() {
+                // Crear y enviar formulario de eliminación
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/usuarios/${idUsuario}/eliminar`;
+                document.body.appendChild(form);
+                form.submit();
+            };
+
+            // Mostrar el modal
+            if (!modalInstance) {
+                modalInstance = new bootstrap.Modal(confirmModal);
+            }
+            modalInstance.show();
+        });
+    });
+});
+</script>

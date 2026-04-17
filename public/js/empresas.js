@@ -2,14 +2,39 @@ class EmpresasManager {
     constructor() {
         this.documentosSeleccionados = [];
         this.idEmpresaActual = null;
+        this.usuarioActual = null;
         this.init();
     }
 
     async init() {
+        await this.obtenerUsuarioActual();
         await this.cargarEmpresas();
         this.setupFormHandler();
         this.setupModalCleanup();
         this.setupDocumentosHandler();
+    }
+
+    async obtenerUsuarioActual() {
+        try {
+            const response = await fetch('/auth/user', {
+                credentials: 'same-origin'
+            });
+            if (response.ok) {
+                this.usuarioActual = await response.json();
+            }
+        } catch (error) {
+            console.error('Error al obtener usuario:', error);
+        }
+    }
+
+    tieneAccesoAEmpresa(idEmpresa) {
+        if (!this.usuarioActual || this.usuarioActual.isAdmin) return true;
+        return this.usuarioActual.accesos.some(a => a.id_empresa === idEmpresa);
+    }
+
+    puedeEditarEmpresa(idEmpresa) {
+        if (!this.usuarioActual) return false;
+        return this.usuarioActual.isAdmin || this.usuarioActual.isJefe;
     }
 
     async cargarEmpresas() {
@@ -28,15 +53,52 @@ class EmpresasManager {
                     const cardHtml = await this.renderCard(empresa);
                     grid.innerHTML += cardHtml;
                 }
+                
+                // Agregar indicadores visuales de acceso
+                this.agregarIndicadoresAcceso();
+                
                 noCompanies.style.display = 'none';
             } else {
-                grid.innerHTML = '';
+                grid.style.display = 'none';
                 noCompanies.style.display = 'block';
             }
         } catch (error) {
             console.error('Error al cargar empresas:', error);
             this.showToast('Error al cargar empresas', 'danger');
         }
+    }
+
+    agregarIndicadoresAcceso() {
+        if (!this.usuarioActual) return;
+        
+        document.querySelectorAll('.empresa-card').forEach(card => {
+            const empresaId = parseInt(card.dataset.empresaId);
+            const tieneAcceso = this.tieneAccesoAEmpresa(empresaId);
+            const puedeEditar = this.puedeEditarEmpresa(empresaId);
+            
+            // Agregar clases CSS para indicadores
+            card.classList.toggle('acceso-permitido', tieneAcceso);
+            card.classList.toggle('acceso-denegado', !tieneAcceso);
+            
+            // Ocultar/mostrar botones de acción
+            const btnEditar = card.querySelector('.btn-editar');
+            const btnEliminar = card.querySelector('.btn-eliminar');
+            
+            if (btnEditar) {
+                btnEditar.style.display = puedeEditar && tieneAcceso ? 'block' : 'none';
+            }
+            if (btnEliminar) {
+                btnEliminar.style.display = puedeEditar && tieneAcceso ? 'block' : 'none';
+            }
+            
+            // Agregar indicador visual
+            if (!tieneAcceso) {
+                const indicador = document.createElement('div');
+                indicador.className = 'acceso-indicador';
+                indicador.innerHTML = '<i class="bi bi-lock"></i> Sin acceso';
+                card.appendChild(indicador);
+            }
+        });
     }
 
     async renderCard(empresa) {
@@ -414,7 +476,7 @@ class EmpresasManager {
                 formData.append('documentos', archivo);
             });
 
-            const response = await fetch(`/api/empresas/${idEmpresa}/documentos`, {
+            const response = await fetch(`/api/documentos/empresas/${idEmpresa}/documentos`, {
                 method: 'POST',
                 body: formData,
                 credentials: 'same-origin'
@@ -452,7 +514,7 @@ class EmpresasManager {
     // Cargar documentos de la empresa (con API real)
     async cargarDocumentosEmpresa(idEmpresa) {
         try {
-            const response = await fetch(`/api/empresas/${idEmpresa}/documentos`, {
+            const response = await fetch(`/api/documentos/empresas/${idEmpresa}/documentos`, {
                 credentials: 'same-origin'
             });
             
@@ -472,7 +534,7 @@ class EmpresasManager {
     // Cargar documentos existentes para el modal de edición
     async cargarDocumentosExistentes(idEmpresa) {
         try {
-            const response = await fetch(`/api/empresas/${idEmpresa}/documentos`, {
+            const response = await fetch(`/api/documentos/empresas/${idEmpresa}/documentos`, {
                 credentials: 'same-origin'
             });
             const result = await response.json();

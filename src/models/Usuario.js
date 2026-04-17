@@ -79,6 +79,8 @@ class Usuario {
     static buildSessionUser(user, accesos) {
         const roles = (accesos || []).map(a => a.NOMBRE_ROL).filter(Boolean);
         const isAdmin = roles.some(isAdminRoleName);
+        const isJefe = roles.some(r => r.toUpperCase() === 'JEFE');
+        const isUsuario = roles.some(r => r.toUpperCase() === 'USUARIO');
 
         return {
             id_usuario: user.ID_USUARIO,
@@ -86,6 +88,9 @@ class Usuario {
             email_usuario: user.EMAIL_USUARIO,
             activo: Boolean(user.ACTIVO),
             isAdmin,
+            isJefe,
+            isUsuario,
+            role: roles[0] || 'USUARIO', // Rol principal del usuario
             accesos: (accesos || []).map(a => ({
                 id_empresa: a.ID_EMPRESA,
                 nombre_empresa: a.NOMBRE_EMPRESA,
@@ -151,7 +156,7 @@ class Usuario {
         return this.buildSessionUser(user, accesos);
     }
 
-    static async create({ nombre_usuario, email_usuario, password, activo = true, id_empresa, id_rol }) {
+    static async create({ nombre_usuario, email_usuario, password, activo = true }) {
         try {
             const passwordHash = await bcrypt.hash(password, 10);
             const [result] = await db.query(`
@@ -159,15 +164,25 @@ class Usuario {
                 VALUES (?, ?, ?, ?)
             `, [nombre_usuario, email_usuario, passwordHash, activo ? 1 : 0]);
 
-            const idUsuario = result.insertId;
-
-            if (id_empresa && id_rol) {
-                await AccesoUsuario.upsert(idUsuario, id_empresa, id_rol);
-            }
-
-            return idUsuario;
+            return result.insertId;
         } catch (error) {
             throw new Error(`Error al crear usuario: ${error.message}`);
+        }
+    }
+
+    static async assignEmpresa(idUsuario, idEmpresa, idRol) {
+        try {
+            await AccesoUsuario.upsert(idUsuario, idEmpresa, idRol);
+        } catch (error) {
+            throw new Error(`Error al asignar empresa: ${error.message}`);
+        }
+    }
+
+    static async clearAccesos(idUsuario) {
+        try {
+            await db.query('DELETE FROM ACCESO_USUARIO WHERE ID_USUARIO = ?', [idUsuario]);
+        } catch (error) {
+            throw new Error(`Error al limpiar accesos: ${error.message}`);
         }
     }
 

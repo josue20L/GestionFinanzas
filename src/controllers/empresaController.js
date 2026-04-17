@@ -1,10 +1,27 @@
 const Empresa = require('../models/Empresa');
+const Usuario = require('../models/Usuario');
+const AccesoUsuario = require('../models/AccesoUsuario');
 
 // Obtener todas las empresas
 const obtenerEmpresas = async (req, res) => {
     try {
-        const empresas = await Empresa.getAll();
-        console.log('Empresas encontradas:', empresas);
+        let empresas;
+        if (req.session.user && req.session.user.isAdmin) {
+            empresas = await Empresa.getAll();
+        } else if (req.session.user && req.session.user.accesos) {
+            const idsEmpresas = req.session.user.accesos.map(a => a.id_empresa);
+            if (idsEmpresas.length > 0) {
+                // Obtener solo las empresas a las que tiene acceso
+                const todas = await Empresa.getAll();
+                empresas = todas.filter(e => idsEmpresas.includes(e.ID_EMPRESA));
+            } else {
+                empresas = [];
+            }
+        } else {
+            empresas = [];
+        }
+        
+        console.log('Empresas filtradas para usuario:', req.session.user.nombre_usuario, empresas.length);
         res.json(empresas);
     } catch (error) {
         console.error('Error al obtener empresas:', error);
@@ -32,7 +49,26 @@ const crearEmpresa = async (req, res) => {
     try {
         const idEmpresa = await Empresa.create(req.body);
         const empresa = await Empresa.getById(idEmpresa);
-        res.status(201).json({ 
+
+        // Si el usuario es JEFE, asignarlo automáticamente a la empresa creada
+        if (req.session.user && !req.session.user.isAdmin && req.session.user.accesos && req.session.user.accesos.length > 0) {
+            const idUsuario = req.session.user.id_usuario;
+            const rolActual = req.session.user.accesos[0].id_rol;
+            
+            await Usuario.assignEmpresa(idUsuario, idEmpresa, rolActual);
+            console.log(`✅ JEFE ${req.session.user.nombre_usuario} asignado automáticamente a empresa ${idEmpresa}`);
+            
+            // Actualizar la sesión del usuario con la nueva empresa
+            const { accesos } = await Usuario.getWithAccesosById(idUsuario);
+            req.session.user.accesos = accesos;
+            
+            // Guardar explícitamente la sesión
+            req.session.save((err) => {
+                if (err) console.error('Error al guardar sesión:', err);
+            });
+        }
+
+        res.status(201).json({
             message: 'Empresa creada exitosamente',
             data: { id_empresa: idEmpresa },
             empresa: empresa
@@ -62,10 +98,18 @@ const actualizarEmpresa = async (req, res) => {
 // Eliminar empresa
 const eliminarEmpresa = async (req, res) => {
     try {
-        const eliminado = await Empresa.delete(req.params.id);
+        const idEmpresa = req.params.id;
+
+        // Primero eliminar todos los accesos de usuarios a esta empresa
+        await AccesoUsuario.deleteByEmpresa(idEmpresa);
+        console.log(`✅ Accesos eliminados para empresa ${idEmpresa}`);
+
+        // Luego eliminar la empresa
+        const eliminado = await Empresa.delete(idEmpresa);
         if (!eliminado) {
             return res.status(404).json({ message: 'Empresa no encontrada' });
         }
+
         res.json({ message: 'Empresa eliminada exitosamente' });
     } catch (error) {
         res.status(500).json({ message: error.message });

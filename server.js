@@ -14,9 +14,11 @@ const mysql = require('mysql2');
 
 const expressLayouts = require('express-ejs-layouts');
 
-const { requireAuth } = require('./src/middleware/auth');
+const { requireAuth, requireAdmin, requireJefe, requireEmpresaAccess } = require('./src/middleware/auth');
+const { showLogin, login, logout } = require('./src/controllers/authController');
 
-
+// Inicializar directorios necesarios
+require('./src/utils/initDirectories');
 
 const app = express();
 
@@ -140,8 +142,6 @@ db.getConnection((err, connection) => {
 
 // ====================
 
-
-
 // Página principal (dashboard o index)
 
 app.get('/', (req, res) => {
@@ -158,7 +158,13 @@ app.get('/', (req, res) => {
 
 });
 
+// Ruta de login (debe estar antes de las rutas montadas con prefijo)
 
+app.get('/login', showLogin);
+
+app.post('/login', login);
+
+app.get('/logout', logout);
 
 // Ruta de ejemplo protegida (dashboard)
 
@@ -216,15 +222,7 @@ app.get('/consolidacion', (req, res) => {
 
     title: 'Consolidación',
 
-    user: { 
-
-      nombre_usuario: 'Demo', 
-
-      email_usuario: 'demo@demo.com',
-
-      isAdmin: true 
-
-    }
+    user: req.session.user 
 
   });
 
@@ -282,71 +280,54 @@ app.get('/carga-mensual', (req, res) => {
 
 });
 
+// Ruta de Tasas de Cambio (solo ADMIN)
+app.get('/configuracion/tasas', requireAuth, requireAdmin, (req, res) => {
+  res.render('configuracion/tasas', { 
+    title: 'Tasas de Cambio',
+    user: req.session.user 
+  });
+});
+
 
 
 // Rutas API
 
 const empresasRoutes = require('./src/routes/empresas');
-
 const periodosRoutes = require('./src/routes/periodos');
-
 const estadoResultadosRoutes = require('./src/routes/estadoResultados');
-
 const balanceGeneralRoutes = require('./src/routes/balanceGeneral');
-
 const flujoOperativoRoutes = require('./src/routes/flujoOperativo');
-
 const flujoCorporativoRoutes = require('./src/routes/flujoCorporativo');
-
 const consolidacionRoutes = require('./src/routes/consolidacion');
-
 const empresasViewsRoutes = require('./src/routes/empresasViews');
-
 const monedasRoutes = require('./src/routes/monedas');
-
 const authRoutes = require('./src/routes/auth');
-
 const usuariosRoutes = require('./src/routes/usuarios');
-
 const reportesRoutes = require('./src/routes/reportes');
-
 const documentosRoutes = require('./src/routes/documentos');
-
 const excelUploadRoutes = require('./src/routes/excelUpload');
+const tasaCambioRoutes = require('./src/routes/tasaCambio');
 
-// ... (rest of the code remains the same)
-
-app.use('/api', empresasRoutes);
-
-app.use('/api/monedas', monedasRoutes);
-
-app.use('/api', periodosRoutes);
-
-app.use('/api', estadoResultadosRoutes);
-
-app.use('/api', balanceGeneralRoutes);
-
-app.use('/api', flujoOperativoRoutes);
-
-app.use('/api', flujoCorporativoRoutes);
-
-app.use('/api', consolidacionRoutes);
-
-app.use('/api/reportes', reportesRoutes);
-
-app.use('/api', documentosRoutes);
-
-app.use('/api/excel', excelUploadRoutes);
-
-app.use('/empresas', empresasViewsRoutes);
-
-
-
-// Auth + Usuarios (solo admin)
-
-app.use('/', authRoutes);
-
+// Auth + Usuarios (primero para evitar conflictos)
+app.use('/auth', authRoutes);
 app.use('/usuarios', usuariosRoutes);
+
+// Rutas API
+app.use('/api', empresasRoutes);
+app.use('/api/monedas', monedasRoutes);
+app.use('/api', periodosRoutes);
+app.use('/api', estadoResultadosRoutes);
+app.use('/api', balanceGeneralRoutes);
+app.use('/api', flujoOperativoRoutes);
+app.use('/api', flujoCorporativoRoutes);
+app.use('/api', consolidacionRoutes);
+app.use('/api/reportes', reportesRoutes);
+app.use('/api/documentos', documentosRoutes);
+app.use('/api/excel', excelUploadRoutes);
+app.use('/api/tasas', tasaCambioRoutes);
+
+// Rutas de vistas
+app.use('/empresas', empresasViewsRoutes);
 
 
 

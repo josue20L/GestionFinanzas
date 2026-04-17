@@ -58,6 +58,9 @@ const eliminarPeriodo = async (req, res) => {
             return res.status(400).json({ message: 'id_empresa y fecha son requeridos' });
         }
 
+        // Validación de acceso (ya manejada por requireEmpresaAccess en la ruta, 
+        // pero aquí reforzamos con los datos del body si fuera necesario)
+
         const [anio, mes] = fecha.split('-');
 
         // Buscar el período para obtener su ID

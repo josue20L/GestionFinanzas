@@ -44,6 +44,15 @@ class AccesoUsuario {
             throw new Error(`Error al eliminar accesos: ${error.message}`);
         }
     }
+
+    static async deleteByEmpresa(idEmpresa) {
+        try {
+            const [result] = await db.query('DELETE FROM ACCESO_USUARIO WHERE ID_EMPRESA = ?', [idEmpresa]);
+            return result.affectedRows >= 0;
+        } catch (error) {
+            throw new Error(`Error al eliminar accesos de empresa: ${error.message}`);
+        }
+    }
 }
 
 module.exports = AccesoUsuario;

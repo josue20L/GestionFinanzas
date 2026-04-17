@@ -33,14 +33,24 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label" for="id_empresa">Empresa</label>
-                    <select class="form-select" id="id_empresa" name="id_empresa">
-                        <option value="">Sin empresa</option>
-                        <% (empresas || []).forEach(e => { %>
-                            <option value="<%= e.ID_EMPRESA %>" <%= (acceso && Number(acceso.ID_EMPRESA) === Number(e.ID_EMPRESA)) ? 'selected' : '' %>><%= e.NOMBRE_EMPRESA %></option>
-                        <% }) %>
-                    </select>
+                <div class="col-12">
+                    <label class="form-label">Empresas Asignadas</label>
+                    <div class="border rounded p-3" style="background-color: var(--bs-secondary-bg); border-color: var(--bs-border-color) !important;">
+                        <div class="row">
+                            <% (empresas || []).forEach(e => { %>
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="empresas[]" value="<%= e.ID_EMPRESA %>" id="empresa_<%= e.ID_EMPRESA %>"
+                                            <%= (acceso && acceso.empresas && acceso.empresas.includes(e.ID_EMPRESA)) ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="empresa_<%= e.ID_EMPRESA %>">
+                                            <%= e.NOMBRE_EMPRESA %>
+                                        </label>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                        <small class="text-muted">Selecciona las empresas a las que este usuario tendrá acceso</small>
+                    </div>
                 </div>
 
                 <div class="col-md-6">

@@ -45,10 +45,18 @@ const newView = async (req, res) => {
 };
 
 const create = async (req, res) => {
+    // Verificar si es el primer usuario (no hay usuarios en la BD)
+    const allUsers = await Usuario.getAll();
+    const isFirstUser = !allUsers || allUsers.length === 0;
+    
     try {
-        // Verificar si es el primer usuario (no hay usuarios en la BD)
-        const allUsers = await Usuario.getAll();
-        const isFirstUser = !allUsers || allUsers.length === 0;
+        // Validación de seguridad: solo ADMIN puede crear usuarios
+        if (!req.session.user.isAdmin) {
+            return res.status(403).render('error', {
+                title: 'Acceso Denegado',
+                message: 'Solo los administradores pueden crear usuarios'
+            });
+        }
 
         if (isFirstUser) {
             // Primer usuario: crear roles básicos y asignar Administrador
@@ -154,13 +162,14 @@ const create = async (req, res) => {
 
             return res.redirect('/login');
         } else {
-            // Usuarios posteriores: pedir rol y empresa
+            // Usuarios posteriores: manejar múltiples empresas
+            const empresasSeleccionadas = req.body.empresas || [];
+            
             const payload = {
                 nombre_usuario: (req.body.nombre_usuario || '').toString().trim(),
                 email_usuario: (req.body.email_usuario || '').toString().trim(),
                 password: (req.body.password || '').toString(),
                 activo: req.body.activo === 'on' || req.body.activo === 'true' || req.body.activo === '1',
-                id_empresa: req.body.id_empresa ? Number(req.body.id_empresa) : null,
                 id_rol: req.body.id_rol ? Number(req.body.id_rol) : null
             };
 
@@ -176,8 +185,18 @@ const create = async (req, res) => {
                 });
             }
 
-            await Usuario.create(payload);
-            return res.redirect('/login');
+            // Crear usuario primero
+            const idUsuario = await Usuario.create(payload);
+            
+            // Asignar múltiples empresas si se seleccionaron
+            if (empresasSeleccionadas.length > 0 && payload.id_rol) {
+                for (const idEmpresa of empresasSeleccionadas) {
+                    await Usuario.assignEmpresa(idUsuario, Number(idEmpresa), payload.id_rol);
+                }
+                console.log(`✅ Asignadas ${empresasSeleccionadas.length} empresas al usuario ${payload.nombre_usuario}`);
+            }
+            
+            return res.redirect('/usuarios');
         }
     } catch (error) {
         const roles = await Rol.getAll();
@@ -206,7 +225,16 @@ const editView = async (req, res) => {
 
         const roles = await Rol.getAll();
         const empresas = await Empresa.getAll();
-        const acceso = accesos && accesos.length ? accesos[0] : null;
+        
+        // Para el formulario de rol, necesitamos el rol principal del usuario
+        // El rol está en ACCESO_USUARIO, no en USUARIO
+        const rolPrincipal = accesos && accesos.length > 0 ? accesos[0].ID_ROL : null;
+        
+        // Preparar accesos para el formulario
+        const acceso = {
+            empresas: accesos ? accesos.map(a => a.ID_EMPRESA) : [],
+            id_rol: rolPrincipal
+        };
 
         return res.render('usuarios/form', {
             title: 'Editar Usuario',
@@ -228,14 +256,33 @@ const editView = async (req, res) => {
 const update = async (req, res) => {
     try {
         const idUsuario = Number(req.params.id);
+        const empresasSeleccionadas = req.body.empresas || [];
+        
+        // Actualizar datos básicos del usuario
         await Usuario.update(idUsuario, {
             nombre_usuario: (req.body.nombre_usuario || '').toString().trim(),
             email_usuario: (req.body.email_usuario || '').toString().trim(),
             password: (req.body.password || '').toString(),
-            activo: req.body.activo === 'on' || req.body.activo === 'true' || req.body.activo === '1',
-            id_empresa: req.body.id_empresa ? Number(req.body.id_empresa) : null,
-            id_rol: req.body.id_rol ? Number(req.body.id_rol) : null
+            activo: req.body.activo === 'on' || req.body.activo === 'true' || req.body.activo === '1'
         });
+
+        // Obtener el rol actual del usuario antes de limpiar accesos
+        const { accesos } = await Usuario.getWithAccesosById(idUsuario) || {};
+        const rolActual = accesos && accesos.length > 0 ? accesos[0].ID_ROL : null;
+        
+        // Usar el rol seleccionado o mantener el rol anterior
+        const idRol = req.body.id_rol ? Number(req.body.id_rol) : rolActual;
+        
+        // Limpiar accesos existentes
+        await Usuario.clearAccesos(idUsuario);
+        
+        // Reasignar empresas si se seleccionaron
+        if (empresasSeleccionadas.length > 0 && idRol) {
+            for (const idEmpresa of empresasSeleccionadas) {
+                await Usuario.assignEmpresa(idUsuario, Number(idEmpresa), idRol);
+            }
+            console.log(`✅ Actualizadas ${empresasSeleccionadas.length} empresas para usuario ${req.body.nombre_usuario}`);
+        }
 
         return res.redirect('/usuarios');
     } catch (error) {
@@ -244,7 +291,12 @@ const update = async (req, res) => {
 
         const idUsuario = Number(req.params.id);
         const usuario = await Usuario.getById(idUsuario);
-        const acceso = { ID_EMPRESA: req.body.id_empresa, ID_ROL: req.body.id_rol };
+        const { accesos } = await Usuario.getWithAccesosById(idUsuario) || {};
+        
+        const acceso = {
+            empresas: accesos ? accesos.map(a => a.ID_EMPRESA) : [],
+            id_rol: accesos && accesos.length ? accesos[0].ID_ROL : null
+        };
 
         return res.status(500).render('usuarios/form', {
             title: 'Editar Usuario',

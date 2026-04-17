@@ -1,5 +1,43 @@
 /* Estilos personalizados para los tabs de carga mensual */
 
+/* Estilos para indicadores de acceso en empresas */
+.empresa-card {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.empresa-card.acceso-permitido {
+    border-left: 4px solid #28a745;
+    background-color: #f8fff9;
+}
+
+.empresa-card.acceso-denegado {
+    border-left: 4px solid #dc3545;
+    background-color: #fff8f8;
+    opacity: 0.7;
+}
+
+.empresa-card.acceso-denegado .card-body {
+    pointer-events: none;
+}
+
+.acceso-indicador {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.acceso-indicador i {
+    margin-right: 4px;
+}
+
 /* Estilos para el contenedor de períodos existentes */
 #periodos-existentes-container {
     margin-top: 1rem;
